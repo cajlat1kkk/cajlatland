@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Настройки cajlatland
+Name[ru]=Настройки cajlatland
+Comment=Настройка оболочки и сочетаний клавиш
+Comment[ru]=Настройка оболочки и сочетаний клавиш
+Exec=qs ipc call configuration open
+Icon=cajlatland-settings
+Categories=Settings;DesktopSettings;
+Keywords[ru]=настройки;сочетания;клавиши;конфигурация;
+Keywords=settings;keybind;shortcuts;

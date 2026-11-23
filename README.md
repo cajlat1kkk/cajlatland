@@ -23,6 +23,25 @@ curl -fL --retry 3 -o cajlatland.run https://github.com/cajlat1kkk/cajlatland/re
 
 </details>
 
+## Установка и сборка из исходников
+
+Склонируй репозиторий, чтобы изменить конфигурацию перед установкой:
+
+```bash
+git clone https://github.com/cajlat1kkk/cajlatland.git
+cd cajlatland
+```
+
+| Что изменить | Где искать |
+| --- | --- |
+| Окна, сочетания клавиш и автозапуск | [home/.config/hypr](home/.config/hypr) |
+| Панель, док и окно настроек | [home/.config/quickshell](home/.config/quickshell) |
+| Начальные настройки оформления | [default-settings.json](home/.local/share/cajlatland/default-settings.json) |
+| Системные настройки и темы входа и загрузки | [system](system) |
+| Зависимости | [packages](packages) |
+
+Проверь изменения командой `./setup check`. Для установки из этой папки выполни `./install.sh`. Если хочешь передать свою сборку другому человеку, запусти `./packaging/build.sh`. Готовый файл появится в `dist/cajlatland.run`; проверь его командой `bash dist/cajlatland.run --check`.
+
 <h2 id="desktop">Рабочий стол</h2>
 
 - **Верхняя панель** показывает рабочие столы, время, раскладку, громкость и заряд. Нажми на центральный островок, чтобы открыть центр управления.

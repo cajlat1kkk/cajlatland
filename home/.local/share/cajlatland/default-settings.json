@@ -1,0 +1,80 @@
+{
+  "barEverywhere": true,
+  "barHeight": 32,
+  "barHidden": false,
+  "barLeft": [
+    "workspaces"
+  ],
+  "barMargin": 5,
+  "barRight": [
+    "tray",
+    "notifications",
+    "network",
+    "bluetooth",
+    {
+      "figure": "on",
+      "id": "keyboard"
+    },
+    "volume",
+    "battery",
+    "controls"
+  ],
+  "barSideMargin": 5,
+  "barSides": "capsule",
+  "barStyle": "spread",
+  "centreColumns": 0,
+  "centreRows": 0,
+  "centreTop": {
+    "left": [],
+    "right": [
+      "lock",
+      "suspend",
+      "logout",
+      "reboot",
+      "shutdown",
+      "stats",
+      "settings",
+      "games"
+    ]
+  },
+  "clockShowsDate": true,
+  "compositor": {
+    "general:border_size": "0"
+  },
+  "cursorColor": "#ffffff",
+  "cursorSize": 24,
+  "desktopGround": "classic",
+  "desktopHidden": false,
+  "desktopOpacity": 100,
+  "desktopTheme": "modern",
+  "desktopWidgets": [],
+  "dockAlignment": "center",
+  "dockAutohide": true,
+  "dockAutohideWindows": true,
+  "dockEdge": "bottom",
+  "dockEnabled": true,
+  "dockEverywhere": true,
+  "dockGround": "classic",
+  "dockIconSize": 38,
+  "dockLauncher": true,
+  "dockMagnify": true,
+  "dockOpacity": 100,
+  "dockShadow": false,
+  "islandAttached": true,
+  "islandSpectrum": true,
+  "islandSummary": true,
+  "keyboard": {},
+  "language": "ru",
+  "screenCorners": false,
+  "superTapLauncher": true,
+  "surfaceStyle": "classic",
+  "terminalGround": "glass",
+  "themeTargets": [
+    "terminal",
+    "greeting",
+    "nautilus"
+  ],
+  "weatherPlace": "52.967,36.069",
+  "weatherUnits": "m",
+  "windowGlass": false
+}

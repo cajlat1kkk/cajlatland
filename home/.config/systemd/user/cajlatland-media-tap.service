@@ -1,0 +1,9 @@
+[Unit]
+Description=Four-finger media tap on the internal touchpad
+PartOf=graphical-session.target
+[Service]
+ExecStart=/usr/bin/python3 %h/.local/lib/cajlatland-media-tap.py
+Restart=on-failure
+RestartSec=3
+[Install]
+WantedBy=graphical-session.target
