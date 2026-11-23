@@ -47,6 +47,6 @@ curl -fL --retry 3 -o cajlatland.run https://github.com/cajlat1kkk/cajlatland/re
 
 ## О проекте
 
-cajlatland — открытая сборка **cajlat1kk**, объединившая несколько работ по настройке Hyprland. В основе оболочки лежит проект [Impasto](https://github.com/andreumassanet/impasto). Лицензия сборки — GPL-3.0.
+cajlatland — открытая сборка **cajlat1kk**, объединившая несколько работ по настройке Hyprland. В основе оболочки лежит проект [M4OS](https://github.com/mylinuxforwork/dotfiles) и [Impasto](https://github.com/andreumassanet/impasto).Проект будет развиваться и улучшаться дальше. Лицензия сборки — GPL-3.0.
 
 [GitHub автора](https://github.com/cajlat1kkk) · [VK](https://vk.ru/ilyshalaev) · [Telegram](https://t.me/IlyShalaev)
