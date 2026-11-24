@@ -35,11 +35,19 @@ local function default_browser()
 end
 
 local function default_file_manager()
-    for _, cmd in ipairs({ "thunar", "nautilus", "dolphin", "nemo", "pcmanfm" }) do
-        local file = io.open("/usr/bin/" .. cmd)
+    local candidates = {
+        { bin = "thunar",    cmd = "thunar" },
+        { bin = "pcmanfm-qt", cmd = "pcmanfm-qt" },
+        { bin = "pcmanfm",   cmd = "pcmanfm" },
+        { bin = "dolphin",   cmd = "dolphin" },
+        { bin = "nemo",      cmd = "nemo" },
+        { bin = "nautilus",  cmd = "nautilus --new-window" },
+    }
+    for _, entry in ipairs(candidates) do
+        local file = io.open("/usr/bin/" .. entry.bin)
         if file then
             file:close()
-            return cmd
+            return entry.cmd
         end
     end
     return "kitty -1 yazi"

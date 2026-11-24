@@ -322,7 +322,7 @@ files_in() {
 shell_part() {
     case $1 in
         .config/hypr/custom|.config/hypr/custom/*) return 1 ;;
-        .config/quickshell/*|.config/hypr/*|.local/share/cajlatland/*|.local/bin/cajlatland) return 0 ;;
+        .config/quickshell/*|.config/hypr/*|.config/environment.d/*|.local/share/cajlatland/*|.local/bin/cajlatland) return 0 ;;
         .local/share/wallpapers/*) return 0 ;;
         .local/share/fonts/GrapeNuts-*|.local/share/icons/hicolor/scalable/apps/cajlatland-files.svg) return 0 ;;
         .local/share/applications/cajlatland-*.desktop|.local/share/applications/thunar.desktop) return 0 ;;

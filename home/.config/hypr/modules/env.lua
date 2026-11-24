@@ -55,3 +55,6 @@ hl.env("CAJLATLAND_CAMERA",     camera)
 -- Prefer native Wayland; use IBus in compatible Qt clients.
 hl.env("QT_IM_MODULES", "wayland;ibus")
 hl.env("XMODIFIERS", "@im=ibus")
+
+-- Avoid slow Vulkan/dGPU cold probes on hybrid laptops in GTK4 apps.
+hl.env("GSK_RENDERER", "gl")
