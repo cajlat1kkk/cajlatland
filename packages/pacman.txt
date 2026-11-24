@@ -177,3 +177,15 @@ qemu-desktop                 # the qemu quickemu runs · quickemu is from the AU
 
 lua                          # luac, for ./setup check
 inotify-tools                # ./setup sync --watch, which copies every save
+
+cargo  # Cajlatland Switcher
+
+python-gobject  # Cajlatland Switcher
+
+gtk4  # Cajlatland Switcher
+
+wayland  # Cajlatland Switcher input-method-v2
+
+glib2  # Cajlatland Switcher input-method-v2
+
+pkgconf  # Cajlatland Switcher input-method-v2

@@ -2,17 +2,19 @@
 
 <h1 align="center">cajlatland</h1>
 <p align="center">Русскоязычный рабочий стол для Arch Linux на базе Hyprland и Quickshell.</p>
-<p align="center"><a href="#install">Установка</a> · <a href="#desktop">Рабочий стол</a> · <a href="#keys">Сочетания клавиш</a> · <a href="https://github.com/cajlat1kkk/cajlatland/releases/latest">Последний релиз</a></p>
+<p align="center"><a href="#install">Установка</a> · <a href="#switcher">Cajlatland Switcher</a> · <a href="#desktop">Рабочий стол</a> · <a href="#keys">Сочетания клавиш</a> · <a href="https://github.com/cajlat1kkk/cajlatland/releases/latest">Последний релиз</a></p>
 
 ![Рабочий стол cajlatland с японским замком на фоне луны, верхней панелью и нижним доком](docs/images/desktop.webp)
 
 <h2 id="install">Установка из терминала</h2>
 
-На Arch Linux с актуальным Hyprland и поддержкой Lua выполни одну команду от обычного пользователя с правом `sudo`. Понадобится интернет.
+Текущая версия из ветки `main` включает **Cajlatland Switcher** — локальное приложение для умного переключения русской и английской раскладок. На Arch Linux с Git, актуальным Hyprland с поддержкой Lua и доступом к sudo выполни:
 
 ```bash
-curl -fL --retry 3 -o cajlatland.run https://github.com/cajlat1kkk/cajlatland/releases/latest/download/cajlatland.run && bash ./cajlatland.run
+git clone https://github.com/cajlat1kkk/cajlatland.git && cd cajlatland && ./install.sh
 ```
+
+Готовая сборка v1.0.0 доступна в [релизах](https://github.com/cajlat1kkk/cajlatland/releases/tag/v1.0.0). Она предшествует появлению Switcher.
 
 Установщик обновит пакеты через pacman, скачает зависимости и установит конфигурацию. Введи пароль, когда его запросит `sudo`. Затем выйди из сеанса и снова выбери **Hyprland**. При первом входе может появиться запрос на сборку плагинов.
 
@@ -25,12 +27,7 @@ curl -fL --retry 3 -o cajlatland.run https://github.com/cajlat1kkk/cajlatland/re
 
 ## Установка и сборка из исходников
 
-Склонируй репозиторий, чтобы изменить конфигурацию перед установкой:
-
-```bash
-git clone https://github.com/cajlat1kkk/cajlatland.git
-cd cajlatland
-```
+После клонирования можно отредактировать конфигурацию перед установкой.
 
 | Что изменить | Где искать |
 | --- | --- |
@@ -41,6 +38,21 @@ cd cajlatland
 | Зависимости | [packages](packages) |
 
 Проверь изменения командой `./setup check`. Для установки из этой папки выполни `./install.sh`. Если хочешь передать свою сборку другому человеку, запусти `./packaging/build.sh`. Готовый файл появится в `dist/cajlatland.run`; проверь его командой `bash dist/cajlatland.run --check`.
+
+<h2 id="switcher">Cajlatland Switcher</h2>
+
+Switcher исправляет раскладку и опечатки во время набора в совместимых текстовых полях Wayland. Например, после `ghbdtn` и пробела появится **привет**. Обработка выполняется локально. Закрытие окна настроек оставляет службу работающей.
+
+| Жест | Действие |
+| --- | --- |
+| Коротко нажать Shift | Сменить раскладку |
+| Дважды нажать Shift | Преобразовать выделение или последнее слово |
+| Нажать левый и правый Shift вместе | Приостановить или возобновить автоматическую смену раскладки |
+| Удерживать Shift | Ввести заглавную букву или сочетание клавиш |
+
+Нажми **Win → Cajlatland Switcher → Проверить ввод**, чтобы попробовать переключение. В **Настройки → Приложения-исключения** показаны действующие исключения, включая Visual Studio Code. В списке отображаются приложения из меню и классы открытых окон. Включи переключатель рядом с названием, чтобы исключить приложение; выключи, чтобы разрешить коррекцию. Поиск фильтрует список. Терминалы и менеджеры паролей защищены отдельно. Поддержка коррекции зависит от протокола ввода приложения; поля паролей и XWayland пропускаются.
+
+[Исходники, лицензия MIT и документация Switcher](home/.local/share/cajlatland-switcher)
 
 <h2 id="desktop">Рабочий стол</h2>
 

@@ -11,3 +11,5 @@ bind("SUPER + ALT + left", hl.dsp.window.resize({ x = -40, y = 0, relative = tru
 
 bind("SUPER + ALT + right", hl.dsp.window.resize({ x = 40, y = 0, relative = true }),
     { repeating = true, description = "Увеличить ширину окна" })
+
+require("modules.switcher-shift")

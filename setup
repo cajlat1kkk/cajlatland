@@ -1135,6 +1135,7 @@ verb_install() {
         omz
     fi
     verb_sync
+    if (( ! SHELL_ONLY )); then act "$HOME/.local/bin/cajlatland-switcher" --version; fi
     save_install_mode
     if (( SHELL_ONLY )); then verb_report; fi
     if (( ! SKIP_SYSTEM )); then verb_system; fi
