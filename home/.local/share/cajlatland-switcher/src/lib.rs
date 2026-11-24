@@ -1,5 +1,6 @@
 mod language;
 mod layout;
+mod lexicon;
 use std::collections::HashSet;
 
 #[derive(Clone, Copy)]
@@ -98,7 +99,10 @@ impl Engine {
                 let converted = other.to_lowercase();
                 let confidence = 0.93 + 0.05 * self.profiles[ru as usize].evidence(&converted)
                     - 0.02 * self.profiles[!ru as usize].evidence(&lower);
-                if self.words.contains(&converted) && self.options.threshold <= confidence {
+                if (self.words.contains(&converted)
+                    || (n >= 4 && !lexicon::contains(&lower) && lexicon::contains(&converted)))
+                    && self.options.threshold <= confidence
+                {
                     return Some(other);
                 }
             }
@@ -117,6 +121,29 @@ impl Engine {
         ] {
             if lower == wrong && self.options.threshold <= 0.98 {
                 return case_like(token, right);
+            }
+        }
+        if lexicon::contains(&lower) {
+            return None;
+        }
+        if (5..=48).contains(&n) && self.options.threshold <= 0.90 {
+            let mut letters: Vec<_> = lower.chars().collect();
+            let mut best = None;
+            for i in 1..letters.len() {
+                letters.swap(i - 1, i);
+                let candidate: String = letters.iter().collect();
+                letters.swap(i - 1, i);
+                if candidate != lower
+                    && (lexicon::contains(&candidate) || self.words.contains(&candidate))
+                {
+                    if best.is_some() {
+                        return None;
+                    }
+                    best = Some(candidate);
+                }
+            }
+            if let Some(candidate) = best {
+                return case_like(token, &candidate);
             }
         }
         if n < 5 || self.options.threshold > 0.84 {

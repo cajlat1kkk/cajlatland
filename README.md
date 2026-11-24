@@ -14,7 +14,7 @@ The current `main` branch includes **Cajlatland Switcher**, a local service for 
 git clone https://github.com/cajlat1kkk/cajlatland.git && cd cajlatland && ./install.sh
 ```
 
-A prebuilt v1.0.0 bundle is available under [Releases](https://github.com/cajlat1kkk/cajlatland/releases/tag/v1.0.0) (predates Switcher).
+Download the [ready-to-run installer](https://github.com/cajlat1kkk/cajlatland/releases/latest/download/cajlatland.run) and run `bash ./cajlatland.run`, or use the source installation above.
 
 The installer updates packages via `pacman`, fetches dependencies, and deploys the configuration. Enter your password when `sudo` prompts for it, then log out and select **Hyprland** at the login screen. On first login, you may be prompted to build the compositor plugins.
 
@@ -82,3 +82,5 @@ To customize any binding, press **Super**, open **cajlatland Settings**, and go 
 cajlatland is an open-source Hyprland desktop configuration maintained by **cajlat1kk**, bringing together [M4OS](https://github.com/mylinuxforwork/dotfiles) and [Impasto](https://github.com/andreumassanet/impasto). Licensed under GPL-3.0.
 
 [GitHub](https://github.com/cajlat1kkk) · [VK](https://vk.ru/ilyshalaev) · [Telegram](https://t.me/IlyShalaev)
+
+The file manager is Thunar (**Win + E**). [Install Cajlatland Switcher separately](https://github.com/cajlat1kkk/cajlatland-switcher).

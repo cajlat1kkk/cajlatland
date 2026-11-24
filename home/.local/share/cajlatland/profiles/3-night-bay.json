@@ -167,7 +167,7 @@
     "dockAutohide": true,
     "dockPinned": [
       "kitty.desktop",
-      "org.gnome.Nautilus.desktop"
+      "thunar.desktop"
     ],
     "greeting": "invaders",
     "wallpaperTransition": "wave",

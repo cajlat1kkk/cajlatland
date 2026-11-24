@@ -209,7 +209,7 @@ def configure(text):
 def photos(quietly):
     """Where the photos go: $CAJLATLAND_CAMERA (set in `env.lua`), else what
     `env.lua` would set: XDG_CAMERA_DIR from user-dirs.dirs, or Camera in the
-    XDG pictures directory, as GNOME's camera does."""
+    XDG pictures directory."""
     value = os.environ.get("CAJLATLAND_CAMERA")
     if value:
         return Path(value).expanduser()

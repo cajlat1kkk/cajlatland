@@ -37,7 +37,7 @@ SettingsSection {
         { id: "imv", label: "imv" }, { id: "gtk", label: "GTK" },
         { id: "qt", label: Tr.t("Qt and KDE") }, { id: "vesktop", label: "Vesktop" },
         { id: "spotify", label: "Spotify" }, { id: "vscodium", label: "VSCodium" },
-        { id: "zen", label: "Zen" }, { id: "nautilus", label: "Nautilus" }
+        { id: "zen", label: "Zen" }, { id: "thunar", label: "Thunar" }
     ]
 
     function themeTargetOn(id: string): bool {

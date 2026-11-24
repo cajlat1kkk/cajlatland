@@ -1544,19 +1544,6 @@ def write_gtk_theme(colors):
             os.makedirs(root, exist_ok=True)
             with open(path, "w", encoding="utf-8") as handle:
                 handle.write(build(colors))
-                if path == GTK4_CSS_FILE:
-                    handle.write("""
-window.nautilus-window {
-    --window-bg-color: #000;
-    --view-bg-color: #000;
-    --headerbar-bg-color: #101010;
-    --sidebar-bg-color: #101010;
-    background-color: #000;
-}
-window.nautilus-window .nautilus-grid-view,
-window.nautilus-window .nautilus-list-view { background-color: #000; }
-""")
-
         except OSError as error:
             sys.stderr.write(f"Cannot write {path}: {error}\n")
 
@@ -3601,103 +3588,6 @@ def write_vscodium_settings(colors):
     return True
 
 
-# ── FILE MANAGER ────────────────────────────────────────────────────────────
-#
-# Nautilus's colours come from gtk.css and its right-click menu is a
-# nautilus-python extension in home/; this is everything else, applied by
-# `./setup nautilus`. Its preferences live in gsettings, and its sidebar is
-# GTK's bookmarks file, which the user edits from the sidebar itself.
-NAUTILUS_BOOKMARKS_FILE = os.path.join(XDG_CONFIG_HOME, "gtk-3.0", "bookmarks")
-
-# (schema, key, value) for `gsettings set`. Only preferences: what Nautilus
-# remembers (window size, zoom, sort column) is left alone.
-NAUTILUS_SETTINGS = (
-    ("org.gtk.gtk4.Settings.FileChooser", "show-hidden", "false"),
-    ("org.gtk.gtk4.Settings.FileChooser", "sort-directories-first", "true"),
-    ("org.gnome.nautilus.preferences", "show-delete-permanently", "true"),
-    ("org.gnome.nautilus.preferences", "show-create-link", "true"),
-)
-
-# The sidebar's folders, as xdg-user-dir names. One already there is kept
-# where it is; the first goes on top when it is added, the rest at the end.
-NAUTILUS_PLACES = ("DESKTOP", "DOCUMENTS", "PICTURES", "DOWNLOAD")
-
-
-def user_dir(name):
-    """An XDG user directory, or None when it is unset or is $HOME."""
-    try:
-        path = subprocess.run(["xdg-user-dir", name], capture_output=True,
-                              text=True, timeout=10).stdout.strip()
-    except (OSError, subprocess.SubprocessError):
-        return None
-    if not path or os.path.realpath(path) == os.path.realpath(os.path.expanduser("~")):
-        return None
-    return path
-
-
-def write_nautilus_bookmarks():
-    """Add the user folders missing from the sidebar. Returns success."""
-    try:
-        with open(NAUTILUS_BOOKMARKS_FILE, encoding="utf-8") as handle:
-            lines = [line.rstrip("\n") for line in handle if line.strip()]
-    except FileNotFoundError:
-        lines = []
-    except OSError as error:
-        sys.stderr.write(f"Cannot read {NAUTILUS_BOOKMARKS_FILE}: {error}\n")
-        return False
-
-    held = {line.split(" ", 1)[0] for line in lines}
-    added = []
-    for name in NAUTILUS_PLACES:
-        path = user_dir(name)
-        if path and os.path.isdir(path):
-            uri = "file://" + quote(path)
-            if uri not in held:
-                added.append((name, uri))
-    if not added:
-        return True
-
-    first = [uri for name, uri in added if name == NAUTILUS_PLACES[0]]
-    lines = first + lines + [uri for name, uri in added if name != NAUTILUS_PLACES[0]]
-    try:
-        os.makedirs(os.path.dirname(NAUTILUS_BOOKMARKS_FILE), exist_ok=True)
-        with open(NAUTILUS_BOOKMARKS_FILE, "w", encoding="utf-8") as handle:
-            handle.write("\n".join(lines) + "\n")
-    except OSError as error:
-        sys.stderr.write(f"Cannot write {NAUTILUS_BOOKMARKS_FILE}: {error}\n")
-        return False
-    return True
-
-
-def apply_nautilus():
-    """Apply Nautilus's preferences and sidebar. Returns success.
-
-    A key gsettings refuses is reported and skipped, so an older Nautilus
-    still gets the ones it knows.
-    """
-    if not shutil.which("nautilus"):
-        sys.stderr.write("nautilus is not installed\n")
-        return False
-
-    refused = 0
-    for schema, key, value in NAUTILUS_SETTINGS:
-        try:
-            result = subprocess.run(["gsettings", "set", schema, key, value],
-                                    capture_output=True, text=True, timeout=10)
-        except (OSError, subprocess.SubprocessError) as error:
-            sys.stderr.write(f"{schema} {key}: {error}\n")
-            refused += 1
-            continue
-        if result.returncode != 0:
-            sys.stderr.write(f"{schema} {key}: {result.stderr.strip()}\n")
-            refused += 1
-
-    if refused:
-        sys.stderr.write(f"{refused} of {len(NAUTILUS_SETTINGS)} settings were "
-                         f"refused\n")
-    return write_nautilus_bookmarks() and refused == 0
-
-
 # ── BROWSER ─────────────────────────────────────────────────────────────────
 
 # Zen is Firefox-based and reads a user stylesheet over its chrome. The
@@ -4115,7 +4005,7 @@ PALETTE_WRITERS = (
     ("nvim", push_nvim_colorscheme),
     ("imv", write_imv_config),
     ("gtk", write_gtk_theme),
-    ("nautilus", write_icon_theme),
+    ("thunar", write_icon_theme),
     ("qt", write_qt_theme),
     ("vesktop", write_vesktop_css),
     ("spotify", write_spicetify_colors),
@@ -4137,7 +4027,7 @@ def main():
                "set-wallpaper <path> [transition] | "
                "restore | extract-colors [path] | set-theme <id> | "
                "push-terminal-palette <json> | push-terminal-font <family> | "
-               "apply-vscodium [json] | apply-nautilus | apply-vesktop")
+               "apply-vscodium [json] | apply-vesktop")
     if len(sys.argv) < 2:
         sys.stderr.write(f"Usage: theme_manager.py {actions}\n")
         sys.exit(1)
@@ -4179,10 +4069,6 @@ def main():
         colors = json.loads(argument) if argument else (
             extract_colors(get_current_wallpaper()) or {})
         sys.exit(0 if write_vscodium_settings(colors) else 1)
-    elif action == "apply-nautilus":
-        if not target_enabled("nautilus"):
-            sys.exit(LEFT_ALONE)
-        sys.exit(0 if apply_nautilus() else 1)
     elif action == "apply-vesktop":
         if not target_enabled("vesktop"):
             sys.exit(LEFT_ALONE)

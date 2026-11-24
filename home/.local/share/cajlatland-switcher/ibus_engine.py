@@ -3,6 +3,8 @@ import configparser
 import os
 from pathlib import Path
 import re
+import signal
+from manual import convert
 import subprocess
 import sys
 import time
@@ -18,7 +20,7 @@ NAME = "cajlatland-switcher"
 BASE = Path(excluded.__file__).parent
 ENGINE = Path(os.environ.get("XDG_CACHE_HOME", Path.home()/".cache"))/"cajlatland-switcher/build/release/cajlatland-switcher"
 PRIVATE = int(IBus.InputHints.PRIVATE | IBus.InputHints.HIDDEN_TEXT | IBus.InputHints.NO_SPELLCHECK)
-BOUNDARY = {ord(c):c for c in " !?:;"}
+BOUNDARY = {ord(c):c for c in " !?:;,."}
 
 
 class Switcher(IBus.Engine):
@@ -28,25 +30,21 @@ class Switcher(IBus.Engine):
         super().__init__(**kwargs)
         self.trusted_client=False
         self.word=""
-        self.browser=False
+        self.browser=None
 
     def do_focus_in_id(self, object_path, client):
         # GTK's IBus module only sends SetContentType for non-default purposes.
         # Restrict the default case to toolkits that implement that contract.
         self.trusted_client=client.split(":",1)[0] in {"gtk3-im","gtk4-im","qt"}
         self.word=""
-        self.browser=False
+        self.browser=None
         if self.trusted_client:
-            try:
-                w=query("activewindow")
-                self.browser=w.get("class","").lower().startswith(("yandex-browser","ru.yandex.desktop.browser")) and not excluded.blocked(w)
-            except (OSError,ValueError,subprocess.SubprocessError):pass
             self.get_surrounding_text()
 
     def do_focus_out_id(self, object_path):
         self.trusted_client=False
         self.word=""
-        self.browser=False
+        self.browser=None
 
     def do_reset(self):
         self.word=""
@@ -72,6 +70,15 @@ class Switcher(IBus.Engine):
             self.word=""
             return False
         shortcut=modifiers & (IBus.ModifierType.CONTROL_MASK|IBus.ModifierType.MOD1_MASK|IBus.ModifierType.SUPER_MASK)
+        if self.browser is None:
+            try:
+                window=query("activewindow")
+                ident=window.get("class","")
+                if not ident or excluded.blocked(window) or excluded.protected(ident):
+                    return False
+                self.browser=ident.lower().startswith(("yandex-browser","ru.yandex.desktop.browser"))
+            except (OSError,ValueError,subprocess.SubprocessError):
+                return False
         if self.browser:
             if key in (IBus.KEY_Shift_L,IBus.KEY_Shift_R):return False
             char=IBus.keyval_to_unicode(key)
@@ -97,6 +104,46 @@ class Switcher(IBus.Engine):
             handled=False
         if not handled and self.word:self.flush()
         return handled
+
+    def manual_switch(self):
+        purpose,hints=self.get_content_type()
+        if not self.trusted_client or purpose not in (IBus.InputPurpose.FREE_FORM,IBus.InputPurpose.ALPHA) or hints & PRIVATE:
+            return
+        cfg=configparser.ConfigParser()
+        cfg.read(excluded.location().with_name("switcher.ini"))
+        if not all(cfg.getboolean("Switcher", key, fallback=True) for key in ("enabled","double")):
+            return
+        window=query("activewindow")
+        ident=window.get("class","")
+        if not ident or excluded.blocked(window) or excluded.protected(ident):
+            return
+        if self.word:
+            converted=convert(self.word)
+            self.word=converted
+            self.flush()
+        else:
+            context,cursor,anchor=self.get_surrounding_text()
+            if not context:
+                return
+            text=context.get_text()
+            start,end=sorted((cursor,anchor))
+            if start==end:
+                match=re.search(r"[^\s]+[ \t]*$",text[:cursor])
+                if not match:
+                    return
+                start=match.start()
+            original=text[start:end]
+            if not original or len(original)>2000:
+                return
+            converted=convert(original)
+            if converted==original:
+                return
+            if cursor==anchor:
+                self.delete_surrounding_text(start-cursor,end-start)
+            self.commit_text(IBus.Text.new_from_string(converted))
+        letter=next((ch for ch in converted if ch.isalpha()),None)
+        if letter and query("activewindow").get("address")==window.get("address"):
+            set_group(query("devices")["keyboards"],"us" if letter.isascii() else "ru")
 
     def correct_boundary(self,key):
         try:
@@ -178,6 +225,16 @@ def main():
         subprocess.Popen(["ibus","engine",NAME],stdout=subprocess.DEVNULL)
     loop=GLib.MainLoop()
     bus.connect("disconnected",lambda *_:loop.quit())
+    def manual_request():
+        for engine in reversed(engines):
+            if engine.trusted_client:
+                try:
+                    engine.manual_switch()
+                except (OSError,ValueError,KeyError,GLib.Error,subprocess.SubprocessError,configparser.Error):
+                    pass
+                break
+        return GLib.SOURCE_CONTINUE
+    GLib.unix_signal_add(GLib.PRIORITY_DEFAULT,signal.SIGUSR1,manual_request)
     loop.run()
 
 if __name__=="__main__":

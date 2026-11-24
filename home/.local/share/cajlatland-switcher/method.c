@@ -79,7 +79,7 @@ static void done(void *data, struct zwp_input_method_v2 *im) {
     if(!s->snapshot){s->fresh=FALSE;return;}
     size_t n=strlen(s->tail);
     char delim=n?s->tail[n-1]:0;
-    gboolean boundary=delim && strchr(" \t\n!?;:",delim);
+    gboolean boundary=delim && strchr(" \t\n!?;:,.",delim);
     if(boundary) s->tail[n-1]=0;
     unsigned hash=g_str_hash(s->tail);
     gboolean typed=boundary && !s->fresh && s->cursor==s->last_cursor+1 && hash==s->fingerprint;

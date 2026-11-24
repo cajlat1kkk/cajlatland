@@ -3,7 +3,9 @@
 local pending, generation = nil, 0
 local presses = {}
 local function command(signal)
-    hl.exec_cmd("systemctl --user kill --kill-whom=main --signal=" .. signal .. " cajlatland-switcher.service")
+    local units = "cajlatland-switcher.service"
+    if signal == "USR1" then units = units .. " cajlatland-switcher-ibus.service" end
+    hl.exec_cmd("systemctl --user kill --kill-whom=main --signal=" .. signal .. " " .. units)
 end
 for _, side in ipairs({"L", "R"}) do
     local key = "Shift_" .. side

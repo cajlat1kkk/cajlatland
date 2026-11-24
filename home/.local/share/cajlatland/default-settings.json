@@ -72,7 +72,7 @@
   "themeTargets": [
     "terminal",
     "greeting",
-    "nautilus"
+    "thunar"
   ],
   "weatherPlace": "52.967,36.069",
   "weatherUnits": "m",

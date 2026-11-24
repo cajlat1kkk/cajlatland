@@ -53,3 +53,10 @@ fn controls() {
     });
     assert_eq!(e.correct("ghbdtn teh"), "ghbdtn teh");
 }
+
+#[test]
+fn fix_unambiguous_transposition_and_preserve_case() {
+    let e = Engine::new(Options::default());
+    assert_eq!(e.correct("Клавиатуар"), "Клавиатура");
+    assert_eq!(e.correct("клавиатура"), "клавиатура");
+}

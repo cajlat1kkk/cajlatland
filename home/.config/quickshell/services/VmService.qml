@@ -227,7 +227,7 @@ Singleton {
         "centos-stream": "", "debian": "", "deepin": "", "devuan": "",
         "edubuntu": "", "elementary": "", "endeavouros": "",
         "fedora": "", "freebsd": "", "freedos": "󰉉", "garuda": "",
-        "gentoo": "", "gnomeos": "", "guix": "", "kali": "",
+        "gentoo": "", "guix": "", "kali": "",
         "kdeneon": "", "kolibrios": "󰉉", "kubuntu": "", "linuxmint": "",
         "lmde": "", "lubuntu": "", "macos": "", "mageia": "",
         "manjaro": "", "mxlinux": "", "nixos": "", "openbsd": "",

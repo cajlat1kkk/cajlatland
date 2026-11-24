@@ -175,11 +175,10 @@ Usage: ./setup <command> [options]
               other display manager is, and printing (asks for a password)
   plugins     build and enable the two Hyprland plugins with hyprpm
 
-  defaults    what opens which file, and dark GTK with the cajlatland icons
+  defaults    default applications for common file types
   cursors     fetch the vector cursor and build it in the chosen colour
   spotify     patch Spotify so it takes the palette (needs spicetify)
   vscodium    install the editor's extensions and merge its settings
-  nautilus    apply the file manager's settings and sidebar
   vesktop     tick the palette's theme in Vencord
   face        unlock the lock screen with your face, where there is an
               infrared camera: installs howdy-next and enrols you
@@ -1111,7 +1110,7 @@ verb_report() {
         say "left     the plugins: glass on the windows, shake to find the pointer — ./setup plugins"
     fi
     names=()
-    for package in defaults cursors spotify vscodium nautilus vesktop face camera splash; do
+    for package in defaults cursors spotify vscodium vesktop face camera splash; do
         applied "$package" || names+=("$package")
     done
     if (( ${#names[@]} )); then
@@ -1264,7 +1263,7 @@ verb_uninstall() {
 # ── EXTRAS ──────────────────────────────────────────────────────────────────
 #
 # What a copied file cannot hold: what opens which file, dark GTK, the cursor,
-# Nautilus, VSCodium, Vesktop, Spotify, face unlock, the camera effects and the
+# VSCodium, Vesktop, Spotify, face unlock, the camera effects and the
 # boot splash.
 # `install` sets each up once per machine, and one that cannot run yet is
 # skipped with the reason and tried again by the next install or update.
@@ -1294,7 +1293,6 @@ stamp()   { if (( ! DRY )); then mkdir -p "$APPLIED"; touch "$APPLIED/$1"; fi; }
 extras() {
     applied defaults || soft defaults verb_defaults
     if [[ ! -d $CURSOR_SEED ]]; then soft cursors verb_cursors; fi
-    applied nautilus || soft nautilus verb_nautilus
     applied vscodium || soft vscodium verb_vscodium
     applied vesktop || soft vesktop verb_vesktop
     applied face || soft face verb_face
@@ -1310,7 +1308,7 @@ extras() {
 DEFAULT_APPS=(
     'imv.desktop image/jpeg image/png image/gif image/webp image/svg+xml'
     'nvim.desktop text/plain application/json'
-    'org.gnome.Nautilus.desktop inode/directory'
+    'thunar.desktop inode/directory'
     'zen.desktop text/html application/pdf x-scheme-handler/http x-scheme-handler/https'
 )
 
@@ -1337,7 +1335,6 @@ has_entry() {
 verb_defaults() {
     section defaults
     command -v xdg-mime >/dev/null || refuse 'xdg-mime is not installed (package: xdg-utils)' || return
-    command -v gsettings >/dev/null || refuse 'gsettings is not installed (package: glib2)' || return
     local line type taken
     local -a words
     for line in "${DEFAULT_APPS[@]}"; do
@@ -1351,15 +1348,6 @@ verb_defaults() {
         act xdg-mime default "${words[0]}" "${words[@]:1}" || refuse 'xdg-mime failed' || return
         say "${words[0]}  ${words[*]:1}"
     done
-    act gsettings set org.gnome.desktop.interface color-scheme prefer-dark \
-        && act gsettings set org.gnome.desktop.interface icon-theme cajlatland \
-        || refuse 'gsettings failed' || return
-    # gsettings succeeds without saving anything when there is no session bus,
-    # so the value is read back.
-    if (( ! DRY )) && [[ $(gsettings get org.gnome.desktop.interface icon-theme) != "'cajlatland'" ]]; then
-        refuse 'the GTK settings did not persist: run it inside the session' || return
-    fi
-    say 'dark GTK, cajlatland icons'
     stamp defaults
 }
 
@@ -1468,28 +1456,6 @@ verb_vesktop() {
     (( status == 0 )) || refuse 'the theme was not ticked' || return
     stamp vesktop
     say 'theme ticked'
-}
-
-# Colours come from gtk.css and the right-click menu is a file in home/; the
-# rest is gsettings and the sidebar's bookmarks. A folder still handed to
-# Thunar is handed to Nautilus instead.
-verb_nautilus() {
-    section nautilus
-    command -v nautilus >/dev/null || refuse 'nautilus is not installed' || return
-    command -v gsettings >/dev/null || refuse 'gsettings is not installed (package: glib2)' || return
-    local status=0
-    act python3 "$THEME_MANAGER" apply-nautilus || status=$?
-    if (( status == 3 )); then
-        say 'left alone — switched off in Settings › Appearance › Applications'
-        return 0
-    fi
-    (( status == 0 )) || refuse 'not every setting was applied' || return
-    if [[ $(xdg-mime query default inode/directory 2>/dev/null) == thunar.desktop ]]; then
-        act xdg-mime default org.gnome.Nautilus.desktop inode/directory || refuse 'xdg-mime failed' || return
-        say 'folders open in Nautilus'
-    fi
-    stamp nautilus
-    say 'settings and sidebar applied'
 }
 
 # The infrared half of a Windows Hello camera: the capture device that offers
@@ -1891,7 +1857,7 @@ parts() {
                 packages) note="$pacman from the repositories, $aur from the AUR" ;;
                 system)   note='sddm, unless this machine already has one' ;;
                 plugins)  note='shake to find · glass on the windows' ;;
-                extras)   note='Nautilus, VSCodium, Vesktop, Spotify, GTK, your face, the camera, the boot splash' ;;
+                extras)   note='VSCodium, Vesktop, Spotify, GTK, your face, the camera, the boot splash' ;;
             esac
             if (( on[i] )); then box="$ACCENT◉$OFF"; else box="$FAINT○$OFF"; fi
             if (( i == at )); then
@@ -2029,7 +1995,6 @@ main() {
         cursors)   verb_cursors ;;
         spotify)   verb_spotify ;;
         vscodium)  verb_vscodium ;;
-        nautilus)  verb_nautilus ;;
         vesktop)   verb_vesktop ;;
         face)      verb_face ;;
         camera)    verb_camera ;;

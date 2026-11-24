@@ -117,8 +117,7 @@ qt6-declarative              # qmlls6 · quickshell brings it anyway
 
 # ── FILE MANAGER ────────────────────────────────────────────────────────────
 
-nautilus                     # SUPER + E
-nautilus-python              # its right-click menu
+thunar                     # SUPER + E
 ffmpegthumbnailer            # a video's thumbnail
 gvfs                         # the trash, and mounting
 
@@ -178,7 +177,7 @@ qemu-desktop                 # the qemu quickemu runs · quickemu is from the AU
 lua                          # luac, for ./setup check
 inotify-tools                # ./setup sync --watch, which copies every save
 
-cargo  # Cajlatland Switcher
+rust  # Cajlatland Switcher
 
 python-gobject  # Cajlatland Switcher
 
@@ -191,3 +190,6 @@ glib2  # Cajlatland Switcher input-method-v2
 pkgconf  # Cajlatland Switcher input-method-v2
 
 ibus  # GTK/Qt input method for Cajlatland Switcher
+
+hunspell-ru
+hunspell-en_us

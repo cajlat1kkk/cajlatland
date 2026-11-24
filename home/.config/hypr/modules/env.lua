@@ -42,7 +42,7 @@ end
 
 -- · capture folders, shared by the shell and hyprshot. XDG_SCREENSHOTS_DIR,
 -- · XDG_SCREENCASTS_DIR and XDG_CAMERA_DIR in user-dirs.dirs override the
--- · defaults; the camera's is where GNOME's camera puts its photos.
+-- · defaults.
 local dirs       = user_dirs()
 local captures   = dirs.SCREENSHOTS or (dirs.PICTURES or home) .. "/Screenshots"
 local recordings = dirs.SCREENCASTS or (dirs.VIDEOS or home) .. "/Screencasts"

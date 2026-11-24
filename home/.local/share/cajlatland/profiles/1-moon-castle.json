@@ -83,7 +83,7 @@
     "dockAutohide": true,
     "dockPinned": [
       "kitty.desktop",
-      "org.gnome.Nautilus.desktop"
+      "thunar.desktop"
     ],
     "greeting": "lava",
     "wallpaperTransition": "fade",

@@ -40,7 +40,7 @@ import json
 import tomllib
 import excluded
 
-REPO = "https://github.com/cajlat1kkk/cajlatland"
+REPO = "https://github.com/cajlat1kkk/cajlatland-switcher"
 try:
     with Path(__file__).with_name("Cargo.toml").open("rb") as manifest:
         VERSION = tomllib.load(manifest)["package"]["version"]
@@ -235,7 +235,7 @@ def show(app):
     about.append(label("Cajlatland Switcher · "+VERSION,"heading"))
     about.append(label("Автор — cajlat1kk. Он собирает cajlatland — русскоязычное окружение Hyprland для Arch Linux. Switcher входит в эту сборку и локально исправляет раскладку и опечатки."))
     about.append(label("В репозитории cajlatland опубликованы конфигурация рабочего стола, скрипты установки и инструкции по сборке."))
-    for name,url in (("Репозиторий cajlatland",REPO),("GitHub · @cajlat1kkk","https://github.com/cajlat1kkk"),("VK · ilyshalaev","https://vk.ru/ilyshalaev"),("Telegram · @IlyShalaev","https://t.me/IlyShalaev")):
+    for name,url in (("Репозиторий Switcher",REPO),("GitHub · @cajlat1kkk","https://github.com/cajlat1kkk"),("VK · ilyshalaev","https://vk.ru/ilyshalaev"),("Telegram · @IlyShalaev","https://t.me/IlyShalaev")):
         about.append(Gtk.LinkButton(uri=url,label=name,halign=Gtk.Align.START))
     footer=Gtk.Box(spacing=10,css_classes=["footer"])
     shell.append(footer)
