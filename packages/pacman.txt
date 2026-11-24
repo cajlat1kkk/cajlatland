@@ -41,7 +41,6 @@ papirus-icon-theme           # what the cajlatland icon theme inherits
 breeze-icons                 # the weather in full colour, when chosen
 inter-font                   # the shell's type, and the greeter's
 ttf-jetbrains-mono-nerd      # the terminal's type, and every glyph on the bar
-adwaita-fonts                # the GTK windows' type
 noto-fonts                   # the scripts the three above do not cover
 noto-fonts-emoji             # emoji, in colour
 unicode-emoji                # the emoji and their groups, for the launcher

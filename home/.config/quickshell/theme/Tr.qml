@@ -1420,6 +1420,7 @@ QtObject {
         "Wired": "Проводное",
         "Wireless": "Беспроводное",
         "With lyrics": "С текстом песни",
+        "Clock and lyrics": "Часы и текст песни",
         "With more screens": "С большим количеством экранов",
         "With nothing else connected, closing the lid is left to logind, which suspends. With another screen connected, the shell can switch the panel off and move its workspaces to the remaining screen, then bring them back when the lid opens.": "Когда ничего не подключено, закрытие крышки обрабатывает logind, который уходит в сон. При подключённом другом экране оболочка может выключить панель и перенести рабочие пространства на оставшийся экран, а затем вернуть их при открытии крышки.",
         "Work something out": "Порешать задачу",

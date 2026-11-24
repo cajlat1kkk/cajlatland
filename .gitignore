@@ -1,6 +1,7 @@
 # Generated at runtime
 __pycache__/
 *.py[cod]
+target/
 
 # Scratch QML run with `qs -p`. Ignored so `./setup sync`, which copies what
 # git would carry, never installs one.

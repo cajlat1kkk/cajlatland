@@ -135,7 +135,7 @@ Singleton {
         root.shotReady = false
         root.wallpaperSource = ""
         if (SettingsService.lockMusicGround === "wallpaper") {
-            const wallpaper = WallpaperService.currentWallpaper
+            const wallpaper = SettingsService.lockWallpaper || WallpaperService.currentWallpaper
             root.wallpaperSource = wallpaper !== "" ? DesktopService.urlOf(wallpaper) : ""
             root.engage()
             return

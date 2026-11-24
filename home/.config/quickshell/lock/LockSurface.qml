@@ -52,6 +52,7 @@ Item {
 
     // 1 while something is playing and the lock is set to show it: the clock
     // steps up and small, and the player takes the middle.
+    readonly property bool splitMusic: SettingsService.lockMusic === "splitLyrics"
     readonly property bool music: SettingsService.lockMusic !== "off" && MediaService.available
     property real musical: root.music ? 1 : 0
 
@@ -223,10 +224,11 @@ Item {
         readonly property real plainScale: 1 - 0.1 * root.awake
         // With music, where it is awake whether awake or not — below the
         // island opened for a face — and no taller than 380.
-        readonly property real musicY: face.awakeY
-        readonly property real musicScale: Math.min(0.9, 380 / Math.max(1, clock.height))
+        readonly property real musicY: root.splitMusic ? (music.roomTop + music.roomBottom - clock.height * musicScale) / 2 : face.awakeY
+        readonly property real musicScale: Math.min(0.9, 380 / Math.max(1, clock.height), root.splitMusic ? Math.min(root.width * 0.32 / Math.max(1, clock.width), Math.max(0, music.roomBottom - music.roomTop - 20) / Math.max(1, clock.height)) : 1)
 
         anchors.horizontalCenter: parent.horizontalCenter
+        anchors.horizontalCenterOffset: root.splitMusic ? -root.width * 0.27 * root.musical : 0
         y: face.plainY + (face.musicY - face.plainY) * root.musical
         width: clock.width
         height: clock.height
@@ -245,6 +247,7 @@ Item {
 
         LockClock {
             id: clock
+            style: root.splitMusic ? "stacked" : SettingsService.lockClock
         }
     }
 
@@ -255,24 +258,25 @@ Item {
     Loader {
         id: music
 
-        readonly property real roomTop: face.musicY + clock.height * face.musicScale
+        readonly property real roomTop: root.splitMusic ? Math.min(150, root.height * 0.18) : face.musicY + clock.height * face.musicScale
         readonly property real roomBottom: account.y
 
         // A short screen has less room than the player: it is drawn smaller
         // to fit, never under the account.
         readonly property real fit: music.item
-            ? Math.min(1, Math.max(0, music.roomBottom - music.roomTop - 24) / Math.max(1, music.item.implicitHeight))
+            ? Math.min(1, root.splitMusic ? root.width * 0.56 / Math.max(1, music.item.implicitWidth) : 1, Math.max(0, music.roomBottom - music.roomTop - 24) / Math.max(1, music.item.implicitHeight))
             : 1
 
         active: root.music || root.musical > 0
         anchors.horizontalCenter: parent.horizontalCenter
+        anchors.horizontalCenterOffset: root.splitMusic ? root.width * 0.18 : 0
         y: Math.round(music.roomTop + (music.roomBottom - music.roomTop - height) / 2)
         scale: music.fit
         opacity: root.musical * root.held
         visible: opacity > 0
 
         sourceComponent: LockMedia {
-            lyrics: SettingsService.lockMusic === "lyrics" && SettingsService.lyrics
+            lyrics: (root.splitMusic || SettingsService.lockMusic === "lyrics") && SettingsService.lyrics
         }
     }
 

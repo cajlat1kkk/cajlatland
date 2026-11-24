@@ -101,6 +101,7 @@ Singleton {
     readonly property alias lockBlur: config.lockBlur
     readonly property alias lockClock: config.lockClock
     readonly property alias lockMusic: config.lockMusic
+    readonly property alias lockWallpaper: config.lockWallpaper
     readonly property alias lockMusicGround: config.lockMusicGround
     readonly property alias userName: config.userName
     readonly property alias userAvatar: config.userAvatar
@@ -688,6 +689,7 @@ Singleton {
         // plays and the desktop otherwise, the "desktop" (a screenshot,
         // blurred), or the "wallpaper", so nothing that was open shows.
         property string lockMusic: "lyrics"
+        property string lockWallpaper: ""
         property string lockMusicGround: "cover"
 
         // Empty means read from the system: the passwd full name and
@@ -757,7 +759,7 @@ Singleton {
         // after every reload; `animations.lua` deliberately has no preset.
         property string animationPreset: "macos"
 
-        property string fontFamily: "Inter, Cantarell, SF Pro Text, sans-serif"
+        property string fontFamily: "Inter, SF Pro Text, sans-serif"
         property string fontMono: "JetBrainsMono Nerd Font Mono, monospace"
 
         property int notificationTimeout: 5000

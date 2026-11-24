@@ -63,13 +63,13 @@ QtObject {
     }
 
     readonly property string fontFamily:
-        root.fontOf("Inter, Cantarell, SF Pro Text, sans-serif")
+        root.fontOf("Inter, SF Pro Text, sans-serif")
     readonly property string fontMono:
         root.fontOf("JetBrainsMono Nerd Font, monospace")
 
     // Inter's display cut, for the clock.
     readonly property string fontDisplay:
-        root.fontOf("Inter Display, Inter, Cantarell, sans-serif")
+        root.fontOf("Inter Display, Inter, sans-serif")
 
     readonly property int fontSizeSmall: 11
     readonly property int fontSizeRegular: 13

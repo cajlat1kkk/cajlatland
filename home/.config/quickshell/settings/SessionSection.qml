@@ -12,6 +12,7 @@ import QtQuick.Dialogs
 import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import Quickshell.Widgets
 
 import "../theme"
@@ -277,13 +278,15 @@ SettingsSection {
                     model: [
                         { id: "off", label: "Nothing" },
                         { id: "player", label: "The player" },
-                        { id: "lyrics", label: "With lyrics" }
+                        { id: "lyrics", label: "With lyrics" },
+                        { id: "splitLyrics", label: "Clock and lyrics" }
                     ]
 
                     PreviewTile {
                         id: musicTile
 
                         required property var modelData
+                        readonly property bool split: modelData.id === "splitLyrics"
 
                         stageHeight: 120
                         caption: Tr.t(musicTile.modelData.label)
@@ -313,8 +316,9 @@ SettingsSection {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            y: musicTile.modelData.id === "off" ? 38 : 10
-                            text: "9:41"
+                            anchors.horizontalCenterOffset: musicTile.split ? -parent.width * 0.31 : 0
+                            y: musicTile.split ? 38 : musicTile.modelData.id === "off" ? 38 : 10
+                            text: musicTile.split ? "09\n41" : "9:41"
                             font.family: Theme.fontDisplay
                             font.pixelSize: musicTile.modelData.id === "off" ? 30 : 16
                             font.weight: Font.Bold
@@ -323,6 +327,8 @@ SettingsSection {
 
                         Row {
                             anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.horizontalCenterOffset: musicTile.split ? parent.width * 0.16 : 0
+                            scale: musicTile.split ? Math.min(1, parent.width * 0.58 / implicitWidth) : 1
                             y: 44
                             visible: musicTile.modelData.id !== "off"
                             spacing: 10
@@ -335,7 +341,7 @@ SettingsSection {
                             }
 
                             Column {
-                                visible: musicTile.modelData.id === "lyrics"
+                                visible: musicTile.split || musicTile.modelData.id === "lyrics"
                                 anchors.verticalCenter: parent.verticalCenter
                                 spacing: 5
 
@@ -364,6 +370,60 @@ SettingsSection {
             title: Tr.t("Background")
             note: Tr.t("Just enough to make the text underneath unreadable.")
             hint: Tr.t("The preview uses the wallpaper, since the lock screen's own capture is taken when it locks. It applies the same blur with the capsule on top, so you can judge how it reads.")
+
+            FileDialog {
+                id: lockPictureDialog
+                title: "Обои экрана блокировки"
+                nameFilters: ["Изображения (*.png *.jpg *.jpeg *.webp *.PNG *.JPG *.JPEG *.WEBP)"]
+                onAccepted: {
+                    lockPictureImport.command = ["python3", Quickshell.shellPath("scripts/import_wallpaper.py"), selectedFile.toString()]
+                    lockPictureImport.running = true
+                }
+            }
+            Process {
+                id: lockPictureImport
+                stdout: StdioCollector {
+                    onStreamFinished: {
+                        const path = text.replace(/\n$/, "")
+                        if (path.length) {
+                            SettingsService.set("lockWallpaper", path)
+                            SettingsService.set("lockMusicGround", "wallpaper")
+                            WallpaperService.scan()
+                            lockChoice.error = ""
+                        }
+                    }
+                }
+                stderr: StdioCollector {
+                    onStreamFinished: if (text.trim()) lockChoice.error = text.trim()
+                }
+            }
+            SettingRow {
+                id: lockChoice
+                property string error: ""
+                label: "Обои экрана блокировки"
+                reading: error || (SettingsService.lockWallpaper.split("/").pop() || "Как на рабочем столе")
+                Row {
+                    spacing: 6
+                    PillButton {
+                        text: "Как на рабочем столе"
+                        implicitWidth: 174
+                        implicitHeight: 30
+                        enabled: !lockPictureImport.running
+                        onClicked: {
+                            SettingsService.set("lockWallpaper", "")
+                            SettingsService.set("lockMusicGround", "wallpaper")
+                            lockChoice.error = ""
+                        }
+                    }
+                    PillButton {
+                        text: "Выбрать файл"
+                        implicitWidth: 118
+                        implicitHeight: 30
+                        enabled: !lockPictureImport.running
+                        onClicked: lockPictureDialog.open()
+                    }
+                }
+            }
 
             // The lock drawn small three ways: the cover playing now as a wash
             // (a stand-in wash when nothing plays), the desktop with its
@@ -410,8 +470,7 @@ SettingsSection {
 
                                 anchors.fill: parent
                                 visible: !groundTile.onCover
-                                source: WallpaperService.currentWallpaper
-                                    ? `file://${WallpaperService.currentWallpaper}` : ""
+                                source: DesktopService.urlOf((!groundTile.withWindows && SettingsService.lockWallpaper) || WallpaperService.currentWallpaper)
                                 fillMode: Image.PreserveAspectCrop
                                 asynchronous: true
                                 sourceSize.width: 320

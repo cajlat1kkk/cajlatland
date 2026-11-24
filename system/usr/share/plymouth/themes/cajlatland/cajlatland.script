@@ -61,24 +61,11 @@ mark.top = mark.rest;
 glow.image = Image("glow.png").Scale(Math.Int(1100 * u), Math.Int(1100 * u));
 glow.sprite = Sprite(glow.image);
 
-board.image = fit(Image("board.png"));
-board.sprite = Sprite(board.image);
-board.pad = 30 * u;
-
-word.image = fit(Image("wordmark.png"));
-word.sprite = Sprite(word.image);
-word.pad = 15 * u;
-
-# Daub centres on the 1254-pixel board, the shell's own geometry.
-paint[0].x = 280; paint[0].y = 650;
-paint[1].x = 340; paint[1].y = 480;
-paint[2].x = 450; paint[2].y = 340;
-paint[3].x = 620; paint[3].y = 250;
-paint[4].x = 800; paint[4].y = 225;
-
-daub.size = 60 * u;
+logo.image = Image("cajlatland-logo.png").Scale(Math.Int(218 * u), Math.Int(218 * u));
+logo.sprite = Sprite(logo.image);
+daub.size = 12 * u;
 for (i = 0; i < 5; i++) {
-    paint[i].source = Image("daub-" + (i + 1) + ".png");
+    paint[i].source = Image("bullet.png");
     paint[i].image = paint[i].source.Scale(Math.Int(daub.size), Math.Int(daub.size));
     paint[i].sprite = Sprite();
     paint[i].sprite.SetZ(10);
@@ -91,12 +78,11 @@ fun place_mark() {
     local.left = screen.cx - 160 * u;
     glow.sprite.SetPosition(screen.cx - glow.image.GetWidth() / 2,
         mark.top + 226 * u - glow.image.GetHeight() / 2, -50);
-    board.sprite.SetPosition(screen.cx - board.image.GetWidth() / 2, mark.top - board.pad, 0);
-    word.sprite.SetPosition(screen.cx - word.image.GetWidth() / 2, mark.top + 286 * u - word.pad, 5);
+    logo.sprite.SetPosition(screen.cx - logo.image.GetWidth() / 2, mark.top + 117 * u, 5);
     for (local.i = 0; local.i < 5; local.i++) {
         local.side = daub.size * paint[local.i].scale;
-        paint[local.i].sprite.SetX(local.left + paint[local.i].x / 1254 * 320 * u - local.side / 2);
-        paint[local.i].sprite.SetY(mark.top + paint[local.i].y / 1254 * 320 * u - local.side / 2);
+        paint[local.i].sprite.SetX(screen.cx + (local.i - 2) * 26 * u - local.side / 2);
+        paint[local.i].sprite.SetY(mark.top + 366 * u - local.side / 2);
     }
 }
 

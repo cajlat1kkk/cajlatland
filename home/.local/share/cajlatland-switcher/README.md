@@ -13,3 +13,7 @@
 Полный установщик [cajlatland](https://github.com/cajlat1kkk/cajlatland) устанавливает Rust-движок, панель, сочетания клавиш и службу. Состояние можно проверить командой `systemctl --user status cajlatland-switcher.service`. Фоновая коррекция работает в совместимых текстовых полях через Wayland или IBus. Для Яндекс Браузера установщик настраивает запуск через GTK и IBus в XWayland. Чтобы применить настройку, полностью закрой браузер и открой его из меню. Коррекция отключена в полях паролей.
 
 Отдельный CLI можно установить из этой папки командой `cargo install --locked --path .`. Пример: `printf 'Ghbdtn!' | cajlatland-switcher correct`. Опции перечислены в `cajlatland-switcher --help`. Тесты движка: `cargo test --locked`. Лицензия MIT.
+
+## Ввод в расширении Codex для VS Code
+
+Выключи исключение Visual Studio Code в настройках Switcher. Выполни `python3 ~/.local/share/cajlatland-switcher/configure_code.py`, полностью закрой все окна VS Code и запусти редактор из меню приложений. Пользовательские ярлыки включают GTK 4 и IBus через XWayland. Для проверки набери `gthtdjl` и пробел в поле сообщения — появится «перевод».
