@@ -4055,9 +4055,14 @@ PALETTE_WRITERS = (
 
 
 def push_palette(colors):
+    wrote_gtk = False
     for target, write in PALETTE_WRITERS:
         if target_enabled(target):
             write(colors)
+            if write is write_gtk_theme:
+                wrote_gtk = True
+    if not wrote_gtk and target_enabled("thunar"):
+        write_gtk_theme(colors)
 
 
 def main():
