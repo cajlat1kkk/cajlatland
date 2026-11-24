@@ -34,9 +34,20 @@ local function default_browser()
     return [[gtk-launch "$(xdg-settings get default-web-browser)"]]
 end
 
+local function default_file_manager()
+    for _, cmd in ipairs({ "thunar", "nautilus", "dolphin", "nemo", "pcmanfm" }) do
+        local file = io.open("/usr/bin/" .. cmd)
+        if file then
+            file:close()
+            return cmd
+        end
+    end
+    return "kitty -1 yazi"
+end
+
 return {
     terminal     = "kitty -1",
-    file_manager = "thunar",
+    file_manager = default_file_manager(),
 
     -- The system default browser, resolved once at config load.
     browser      = default_browser(),

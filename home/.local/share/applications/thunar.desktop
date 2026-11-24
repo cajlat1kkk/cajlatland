@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Проводник
+Name[en]=Files
+Name[ru]=Проводник
+Comment=Просмотр и управление файлами
+Comment[ru]=Просмотр и управление файлами
+Exec=thunar %F
+Icon=cajlatland-files
+Terminal=false
+StartupNotify=true
+Categories=System;Utility;Core;FileManager;
+MimeType=inode/directory;
+Keywords=файлы;проводник;папки;каталоги;thunar;files;explorer;
+Keywords[ru]=файлы;проводник;папки;каталоги;thunar;

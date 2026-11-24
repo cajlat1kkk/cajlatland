@@ -68,7 +68,7 @@ QtObject {
             "About the project and its author": "О проекте и его авторе",
             "About us": "О нас",
         "Open a terminal": "Открыть терминал",
-        "Open the file manager": "Открыть файловый менеджер",
+        "Open the file manager": "Открыть проводник",
         "Open the browser": "Открыть браузер",
         "Close the focused window": "Закрыть активное окно",
         "Kill the focused window": "Принудительно закрыть активное окно",

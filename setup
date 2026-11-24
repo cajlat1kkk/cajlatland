@@ -325,6 +325,7 @@ shell_part() {
         .config/quickshell/*|.config/hypr/*|.local/share/cajlatland/*|.local/bin/cajlatland) return 0 ;;
         .local/share/wallpapers/*) return 0 ;;
         .local/share/fonts/GrapeNuts-*|.local/share/icons/hicolor/scalable/apps/cajlatland-files.svg) return 0 ;;
+        .local/share/applications/cajlatland-*.desktop|.local/share/applications/thunar.desktop) return 0 ;;
         .local/share/zsh/site-functions/_cajlatland) return 0 ;;
     esac
     return 1
