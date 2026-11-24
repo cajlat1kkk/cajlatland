@@ -1521,6 +1521,44 @@ scrollbar slider {{ background-color: @insensitive_fg_color; }}
 scrollbar slider:hover {{ background-color: @theme_fg_color; }}
 
 statusbar {{ border-top: 1px solid @borders; }}
+
+
+/* ── THUNAR ──────────────────────────────────────────────────────────── */
+
+.thunar, .thunar window {{
+  background-color: @theme_bg_color;
+  color: @theme_fg_color;
+}}
+
+.thunar headerbar, .thunar toolbar, .thunar .location-bar {{
+  background-color: {raised};
+  border-bottom: 1px solid @borders;
+}}
+
+.thunar .shortcuts-pane, .thunar .tree-pane {{
+  background-color: {raised};
+  border-right: 1px solid @borders;
+}}
+
+.thunar .shortcuts-pane row, .thunar .shortcuts-pane .view {{
+  padding: 3px 6px;
+}}
+
+.thunar .location-button {{
+  border-radius: 6px;
+  padding: 4px 8px;
+}}
+
+.thunar .location-button:checked {{
+  background-color: {hover};
+  color: @theme_fg_color;
+}}
+
+.thunar rubberband {{
+  background-color: alpha(@theme_selected_bg_color, 0.22);
+  border: 1px solid @theme_selected_bg_color;
+  border-radius: 4px;
+}}
 """)
     lines.append("")
     return "\n".join(lines)

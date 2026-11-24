@@ -105,6 +105,17 @@ hl.window_rule({
 -- ── APPS ────────────────────────────────────────────────────────────────────
 
 hl.window_rule({
+    name  = "thunar-dialogs",
+    match = {
+        class = "^([Tt]hunar)$",
+        title = "^(Действие над файлами|File Operation Progress|Свойства.*|.*Properties|Настройки Thunar|Thunar Preferences|Подтверждение.*|Confirm.*|Переименовать.*|Rename.*)$",
+    },
+
+    float  = true,
+    center = true,
+})
+
+hl.window_rule({
     name  = "move-hyprland-run",
     match = { class = "hyprland-run" },
 
