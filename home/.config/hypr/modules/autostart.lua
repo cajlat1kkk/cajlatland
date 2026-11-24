@@ -12,8 +12,9 @@
 -- Quickshell owns org.freedesktop.Notifications, so no separate notification
 -- daemon runs: only one process can hold that bus name.
 hl.on("hyprland.start", function()
-    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE && systemctl --user start cajlatland-switcher.service")
+    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP DISPLAY QT_QPA_PLATFORMTHEME && systemctl --user import-environment WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP DISPLAY QT_QPA_PLATFORMTHEME && systemctl --user start cajlatland-switcher.service")
     hl.exec_cmd("qs -d")        -- · bar and notifications (quickshell)
+    hl.exec_cmd("thunar --daemon")
     hl.exec_cmd("systemctl --user start cajlatland-media-tap.service")
     hl.exec_cmd("awww-daemon")  -- · wallpaper
 end)

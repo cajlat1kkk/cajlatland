@@ -541,6 +541,11 @@ QtObject {
     function launchDesktop(desktopId: string): void {
         if (!desktopId)
             return
+        const entry = root.applications.find(app => app.id === desktopId)
+        if (entry && entry.argv && entry.argv.length > 0) {
+            Quickshell.execDetached(entry.argv)
+            return
+        }
         Quickshell.execDetached(["gtk-launch", desktopId])
     }
 }

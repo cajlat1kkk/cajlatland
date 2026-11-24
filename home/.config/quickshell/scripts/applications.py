@@ -18,6 +18,7 @@ a user override in ~/.local/share/applications shadows the system copy.
 import configparser
 import json
 import os
+import shlex
 import sys
 
 XDG_DATA_HOME = os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share")
@@ -28,6 +29,34 @@ APPLICATION_DIRS = [
     for directory in [XDG_DATA_HOME, *XDG_DATA_DIRS.split(":")]
     if directory
 ]
+
+
+FIELD_CODES = {"%f", "%F", "%u", "%U", "%d", "%D", "%n", "%N", "%i", "%c", "%k", "%v", "%m"}
+
+
+def parse_exec_argv(section):
+    """Return direct argv for fast launching, or None when gtk-launch is safer."""
+    if section.getboolean("Terminal", fallback=False):
+        return None
+    if section.getboolean("DBusActivatable", fallback=False):
+        return None
+    if section.get("Path", "").strip():
+        return None
+    raw = section.get("Exec", "").strip()
+    if not raw:
+        return None
+    try:
+        parts = shlex.split(raw)
+    except ValueError:
+        return None
+    argv = []
+    for token in parts:
+        if token in FIELD_CODES:
+            continue
+        if token.startswith("%"):
+            continue
+        argv.append(token)
+    return argv or None
 
 
 def read_entry(path):
@@ -60,6 +89,7 @@ def read_entry(path):
         # the shell. Empty is fine: the launcher falls back to a glyph.
         "icon": section.get("Icon", "").strip(),
         "exec": section.get("Exec", "").strip(),
+        "argv": parse_exec_argv(section),
         # The only field linking an entry to an open window, which the dock
         # uses to match running apps. Most entries omit it, so it is just
         # the first guess.

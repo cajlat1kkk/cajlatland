@@ -17,6 +17,8 @@ export ZSH="$HOME/.oh-my-zsh"
 
 # · no theme: starship sets the prompt
 ZSH_THEME=""
+DISABLE_COMPFIX="true"
+ZSH_DISABLE_COMPFIX=true
 
 # · zsh-autosuggestions and zsh-syntax-highlighting are cloned into
 #   $ZSH/custom/plugins by ./setup
@@ -98,9 +100,16 @@ fi
 
 # ── TOOLS ───────────────────────────────────────────────────────────────────
 
-# · node version manager, switches on cd
+# · node version manager, lazy-loaded so new terminals open without delay
 if (( $+commands[fnm] )); then
-    eval "$(fnm env --use-on-cd)"
+    _cajlat_load_fnm() {
+        unfunction fnm node npm npx pnpm yarn corepack 2>/dev/null
+        eval "$(fnm env --use-on-cd)"
+    }
+    for _fnm_cmd in fnm node npm npx pnpm yarn corepack; do
+        eval "${_fnm_cmd}() { _cajlat_load_fnm && ${_fnm_cmd} \"\$@\"; }"
+    done
+    unset _fnm_cmd
 fi
 
 # · fzf key bindings (ctrl-r, ctrl-t, alt-c); after the plugins that also
