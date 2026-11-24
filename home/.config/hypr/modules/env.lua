@@ -51,3 +51,7 @@ hl.env("CAJLATLAND_CAPTURES",   captures)
 hl.env("HYPRSHOT_DIR",       captures)
 hl.env("CAJLATLAND_RECORDINGS", recordings)
 hl.env("CAJLATLAND_CAMERA",     camera)
+
+-- Prefer native Wayland; use IBus in compatible Qt clients.
+hl.env("QT_IM_MODULES", "wayland;ibus")
+hl.env("XMODIFIERS", "@im=ibus")

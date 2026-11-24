@@ -266,7 +266,7 @@ PanelWindow {
 
         x: root.edge === "bottom" ? (root.width - width) / 2 : (root.edge === "right" ? root.width - Theme.dockReveal : 0)
         y: root.edge === "bottom" ? root.height - Theme.dockReveal : 0
-        width: root.vertical ? Theme.dockReveal : Math.min(144, root.width)
+        width: root.vertical ? Theme.dockReveal : Math.min(288, root.width)
         height: root.vertical ? root.height : Theme.dockReveal
     }
 

@@ -1007,6 +1007,6 @@ Singleton {
 
         // Translations live in `theme/Tr.qml`; missing strings fall back to
         // English.
-        property string language: "en"
+        property string language: "ru"
     }
 }

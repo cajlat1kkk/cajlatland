@@ -1,83 +1,84 @@
-<p align="center"><img src="docs/images/logo.png" width="96" height="96" alt="Зелёный кот cajlatland с терминальным приглашением"></p>
+<p align="center"><img src="docs/images/logo.png" width="96" height="96" alt="cajlatland green cat logo with terminal prompt"></p>
 
 <h1 align="center">cajlatland</h1>
-<p align="center">Русскоязычный рабочий стол для Arch Linux на базе Hyprland и Quickshell.</p>
-<p align="center"><a href="#install">Установка</a> · <a href="#switcher">Cajlatland Switcher</a> · <a href="#desktop">Рабочий стол</a> · <a href="#keys">Сочетания клавиш</a> · <a href="https://github.com/cajlat1kkk/cajlatland/releases/latest">Последний релиз</a></p>
+<p align="center">A bilingual (Russian &amp; English) desktop environment for Arch Linux powered by Hyprland and Quickshell.</p>
+<p align="center"><a href="#install">Install</a> · <a href="#switcher">Cajlatland Switcher</a> · <a href="#desktop">Desktop</a> · <a href="#keys">Shortcuts</a> · <a href="https://github.com/cajlat1kkk/cajlatland/releases/latest">Latest Release</a></p>
 
-![Рабочий стол cajlatland с японским замком на фоне луны, верхней панелью и нижним доком](docs/images/desktop.webp)
+![cajlatland desktop featuring a Japanese castle under a full moon, top bar, and bottom dock](docs/images/desktop.webp)
 
-<h2 id="install">Установка из терминала</h2>
+<h2 id="install">Install from Terminal</h2>
 
-Текущая версия из ветки `main` включает **Cajlatland Switcher** — локальное приложение для умного переключения русской и английской раскладок. На Arch Linux с Git, актуальным Hyprland с поддержкой Lua и доступом к sudo выполни:
+The current `main` branch includes **Cajlatland Switcher**, a local service for smart Russian/English keyboard layout switching and typo correction. On Arch Linux with Git, an up-to-date Hyprland build with Lua support, and `sudo` access, run:
 
 ```bash
 git clone https://github.com/cajlat1kkk/cajlatland.git && cd cajlatland && ./install.sh
 ```
 
-Готовая сборка v1.0.0 доступна в [релизах](https://github.com/cajlat1kkk/cajlatland/releases/tag/v1.0.0). Она предшествует появлению Switcher.
+A prebuilt v1.0.0 bundle is available under [Releases](https://github.com/cajlat1kkk/cajlatland/releases/tag/v1.0.0) (predates Switcher).
 
-Установщик обновит пакеты через pacman, скачает зависимости и установит конфигурацию. Введи пароль, когда его запросит `sudo`. Затем выйди из сеанса и снова выбери **Hyprland**. При первом входе может появиться запрос на сборку плагинов.
+The installer updates packages via `pacman`, fetches dependencies, and deploys the configuration. Enter your password when `sudo` prompts for it, then log out and select **Hyprland** at the login screen. On first login, you may be prompted to build the compositor plugins.
 
 <details>
-<summary>Проверка файла и резервные копии</summary>
+<summary>Archive verification and backups</summary>
 
-Команда `bash ./cajlatland.run --check` проверяет целостность скачанного архива без установки. Исходники сборки распаковываются в `~/.local/share/cajlatland-installer/`. При первой установке заменяемые файлы конфигурации сохраняются в `~/.local/state/cajlatland/backups/`.
+Run `bash ./cajlatland.run --check` to verify the integrity of a downloaded installer bundle without installing it. The bundle extracts into `~/.local/share/cajlatland-installer/`. During initial installation, any replaced config files are backed up to `~/.local/state/cajlatland/backups/`.
 
 </details>
 
-## Установка и сборка из исходников
+## Install and Build from Source
 
-После клонирования можно отредактировать конфигурацию перед установкой.
+After cloning, you can customize the configuration before installing:
 
-| Что изменить | Где искать |
+| What to customize | Location |
 | --- | --- |
-| Окна, сочетания клавиш и автозапуск | [home/.config/hypr](home/.config/hypr) |
-| Панель, док и окно настроек | [home/.config/quickshell](home/.config/quickshell) |
-| Начальные настройки оформления | [default-settings.json](home/.local/share/cajlatland/default-settings.json) |
-| Системные настройки и темы входа и загрузки | [system](system) |
-| Зависимости | [packages](packages) |
+| Windows, keybindings, and autostart | [home/.config/hypr](home/.config/hypr) |
+| Top bar, dock, and settings window | [home/.config/quickshell](home/.config/quickshell) |
+| Default appearance and shell preferences | [default-settings.json](home/.local/share/cajlatland/default-settings.json) |
+| System configs, login screen, and boot splash | [system](system) |
+| Package dependencies | [packages](packages) |
 
-Проверь изменения командой `./setup check`. Для установки из этой папки выполни `./install.sh`. Если хочешь передать свою сборку другому человеку, запусти `./packaging/build.sh`. Готовый файл появится в `dist/cajlatland.run`; проверь его командой `bash dist/cajlatland.run --check`.
+Validate your edits with `./setup check`, then install from this directory with `./install.sh`. To package a standalone installer bundle for another machine, run `./packaging/build.sh` — the resulting file is written to `dist/cajlatland.run` and can be verified with `bash dist/cajlatland.run --check`.
 
 <h2 id="switcher">Cajlatland Switcher</h2>
 
-Switcher исправляет раскладку и опечатки во время набора в совместимых текстовых полях Wayland. Например, после `ghbdtn` и пробела появится **привет**. Обработка выполняется локально. Закрытие окна настроек оставляет службу работающей.
+Switcher automatically fixes wrong-layout typing and typos in compatible Wayland text fields — for example, typing `ghbdtn` followed by Space turns into **привет**. All processing runs locally on your machine, and closing its settings window keeps the background service active.
 
-| Жест | Действие |
+| Gesture | Action |
 | --- | --- |
-| Коротко нажать Shift | Сменить раскладку |
-| Дважды нажать Shift | Преобразовать выделение или последнее слово |
-| Нажать левый и правый Shift вместе | Приостановить или возобновить автоматическую смену раскладки |
-| Удерживать Shift | Ввести заглавную букву или сочетание клавиш |
+| Tap `Shift` | Switch keyboard layout |
+| Double-tap `Shift` | Convert the selection or last typed word |
+| Press Left + Right `Shift` together | Pause or resume automatic layout correction |
+| Hold `Shift` | Type an uppercase letter or shortcut as usual |
 
-Нажми **Win → Cajlatland Switcher → Проверить ввод**, чтобы попробовать переключение. В **Настройки → Приложения-исключения** показаны действующие исключения, включая Visual Studio Code. В списке отображаются приложения из меню и классы открытых окон. Включи переключатель рядом с названием, чтобы исключить приложение; выключи, чтобы разрешить коррекцию. Поиск фильтрует список. Терминалы и менеджеры паролей защищены отдельно. Поддержка коррекции зависит от протокола ввода приложения; поля паролей и XWayland пропускаются.
+Press **Super → Cajlatland Switcher → Test Input** to try it out. Under **Settings → Excluded Apps**, you can review active exclusions (including Visual Studio Code) or toggle correction per application from installed entries and open window classes. Terminals and password managers are protected separately, and correction is disabled in password fields. Background correction works across compatible Wayland and IBus text fields; for Yandex Browser, the installer configures GTK/IBus support under XWayland (restart the browser completely from the launcher to apply).
 
-[Исходники, лицензия MIT и документация Switcher](home/.local/share/cajlatland-switcher)
+[Switcher source code, MIT license, and documentation](home/.local/share/cajlatland-switcher)
 
-<h2 id="desktop">Рабочий стол</h2>
+<h2 id="desktop">Desktop</h2>
 
-- **Верхняя панель** показывает рабочие столы, время, раскладку, громкость и заряд. Нажми на центральный островок, чтобы открыть центр управления.
-- **Нижний док** виден на пустом рабочем столе и скрывается при открытых окнах. Подведи указатель к полоске в центре нижнего края, чтобы вызвать его.
-- **Терминал Kitty** открывается с Zsh. Для терминала и файлового менеджера настроен тёмный фон с прозрачностью.
+- **Top Bar & Dynamic Island** display workspaces, clock, keyboard layout, audio volume, and battery status. Click the central island to open the Control Centre.
+- **Bottom Dock** appears on empty workspaces and auto-hides when windows are open. Move the pointer to the bottom-center edge bar to reveal it.
+- **Language & Date Settings** let you switch the shell interface language (English, Russian, Spanish), configure system locale, timezone, NTP synchronization, manual date/time, and clock format directly from **cajlatland Settings → Language & Date**.
+- **Kitty Terminal** comes preconfigured with Zsh, and both the terminal and file manager use a dark translucent theme.
 
-<h2 id="keys">Сочетания клавиш</h2>
+<h2 id="keys">Keyboard Shortcuts</h2>
 
-| Действие | Сочетание по умолчанию |
+| Action | Default shortcut |
 | --- | --- |
-| Открыть меню приложений | Нажать и отпустить **Win** |
-| Открыть терминал | **Win + Enter** |
-| Открыть файловый менеджер | **Win + E** |
-| Переключить раскладку | **Alt + Shift** |
-| Перенести окно на рабочий стол | **Win + Shift + цифра** |
-| Изменить ширину или высоту окна | **Win + Alt + стрелка** |
-| Заблокировать экран | **Win + L** |
+| Open application launcher | Tap **Super** |
+| Open terminal | **Super + Enter** |
+| Open file manager | **Super + E** |
+| Switch keyboard layout | **Alt + Shift** |
+| Move window to workspace | **Super + Shift + Number** |
+| Resize window width or height | **Super + Alt + Arrow** |
+| Lock screen | **Super + L** |
 
-Чтобы назначить своё сочетание, нажми **Win**, найди **«Настройки cajlatland»** и открой **«Сочетания клавиш»**. Найди действие, нажми на его текущее сочетание, задай новое и выбери **«Применить»**.
+To customize any binding, press **Super**, open **cajlatland Settings**, and go to **Keys**. Select an action, click its current shortcut, press the new key combination, and click **Apply**.
 
-![Редактор сочетаний клавиш cajlatland с поиском по действию и вкладками для оболочки и управления окнами](docs/images/shortcuts.webp)
+![cajlatland keybinding editor with action search and tabs for shell and compositor shortcuts](docs/images/shortcuts.webp)
 
-## О проекте
+## About
 
-cajlatland — открытая сборка **cajlat1kk**, объединившая несколько работ по настройке Hyprland. В основе оболочки лежит проект [M4OS](https://github.com/mylinuxforwork/dotfiles) и [Impasto](https://github.com/andreumassanet/impasto).Проект будет развиваться и улучшаться дальше. Лицензия сборки — GPL-3.0.
+cajlatland is an open-source Hyprland desktop configuration maintained by **cajlat1kk**, bringing together [M4OS](https://github.com/mylinuxforwork/dotfiles) and [Impasto](https://github.com/andreumassanet/impasto). Licensed under GPL-3.0.
 
-[GitHub автора](https://github.com/cajlat1kkk) · [VK](https://vk.ru/ilyshalaev) · [Telegram](https://t.me/IlyShalaev)
+[GitHub](https://github.com/cajlat1kkk) · [VK](https://vk.ru/ilyshalaev) · [Telegram](https://t.me/IlyShalaev)

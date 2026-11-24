@@ -8,6 +8,9 @@
 // ╰──────────────────────────────────────────────────────────────────────────╯
 
 import QtQuick
+import QtQuick.Dialogs
+import Quickshell
+import Quickshell.Io
 import QtQuick.Layouts
 
 import "../theme"
@@ -56,24 +59,55 @@ SettingsSection {
         spacing: root.spacing
         visible: root.tab === "wallpaper"
 
-        // Theme and wallpaper are chosen in the island's appearance panel;
-        // this row only opens it.
+        FileDialog {
+            id: wallpaperDialog
+            title: "Добавить свои обои"
+            nameFilters: ["Изображения (*.png *.jpg *.jpeg *.webp *.PNG *.JPG *.JPEG *.WEBP)"]
+            onAccepted: {
+                importRow.reading = ""
+                importer.command = ["python3", Quickshell.shellPath("scripts/import_wallpaper.py"), selectedFile.toString()]
+                importer.running = true
+            }
+        }
+
+        Process {
+            id: importer
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    const path = text.replace(/\n$/, "")
+                    if (path.length) {
+                        WallpaperService.scan()
+                        WallpaperService.apply(path)
+                        importRow.reading = path.split("/").pop()
+                    }
+                }
+            }
+            stderr: StdioCollector {
+                onStreamFinished: if (text.trim()) importRow.reading = text.trim()
+            }
+        }
+
         SettingGroup {
-            title: Tr.t("Theme")
-            note: Tr.t("The palette follows the wallpaper, and both are chosen in the island.")
-            hint: Tr.t("This opens the island's appearance panel, where wallpapers and palettes are chosen together.")
-
+            title: "Обои"
             SettingRow {
-                label: Tr.t("Theme and wallpaper")
-                reading: Tr.t(Theme.activeName)
-
+                label: "Коллекция обоев"
+                reading: WallpaperService.chosen.split("/").pop()
                 PillButton {
-                    text: Tr.t("Open")
-                    icon: "󰏘"
-                    active: true
-                    implicitWidth: 92
+                    text: "Выбрать обои"
+                    implicitWidth: 138
                     implicitHeight: 30
                     onClicked: root.panelRequested("appearance")
+                }
+            }
+            SettingRow {
+                id: importRow
+                label: "Свои обои"
+                PillButton {
+                    text: "Добавить из файла"
+                    enabled: !importer.running
+                    implicitWidth: 166
+                    implicitHeight: 30
+                    onClicked: wallpaperDialog.open()
                 }
             }
         }

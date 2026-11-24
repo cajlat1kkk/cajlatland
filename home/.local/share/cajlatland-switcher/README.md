@@ -10,6 +10,6 @@
 
 ## Установка и диагностика
 
-Полный установщик [cajlatland](https://github.com/cajlat1kkk/cajlatland) устанавливает Rust-движок, панель, сочетания клавиш и службу. Состояние можно проверить командой `systemctl --user status cajlatland-switcher.service`. Фоновая замена использует input-method-v2 и требует поддержки контекста и назначения поля со стороны приложения. XWayland и чувствительные поля пропускаются.
+Полный установщик [cajlatland](https://github.com/cajlat1kkk/cajlatland) устанавливает Rust-движок, панель, сочетания клавиш и службу. Состояние можно проверить командой `systemctl --user status cajlatland-switcher.service`. Фоновая коррекция работает в совместимых текстовых полях через Wayland или IBus. Для Яндекс Браузера установщик настраивает запуск через GTK и IBus в XWayland. Чтобы применить настройку, полностью закрой браузер и открой его из меню. Коррекция отключена в полях паролей.
 
 Отдельный CLI можно установить из этой папки командой `cargo install --locked --path .`. Пример: `printf 'Ghbdtn!' | cajlatland-switcher correct`. Опции перечислены в `cajlatland-switcher --help`. Тесты движка: `cargo test --locked`. Лицензия MIT.

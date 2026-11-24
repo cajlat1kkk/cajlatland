@@ -142,6 +142,13 @@ Item {
           keywords: "session lock blur password suspend security idle timeout sleep screen off dpms away never lock after avatar picture name account clock stacked inline flip face unlock howdy camera infrared enrol enroll scan faces recognise music song lyrics cover now playing",
           page: sessionPage },
 
+        { id: "datetime", category: "session", icon: "󰥔", label: Tr.t("Language & Date"),
+          blurb: Tr.t("Language, time zone, date and clock format."),
+          tabs: [{ id: "language", label: Tr.t("Language") },
+                 { id: "datetime", label: Tr.t("Date & Time") }],
+          keywords: "language locale system date time clock timezone 24-hour 12-hour format ntp язык дата время система часы секунды часовой пояс",
+          page: datetimePage },
+
         { id: "system", category: "session", icon: "󰍛", label: Tr.t("System"),
           blurb: Tr.t("Profiles, updates, language and this machine."),
           tabs: [{ id: "profiles", label: Tr.t("Profiles") },
@@ -608,6 +615,8 @@ Item {
     Component { id: scratchpadsPage; ScratchpadsSection {} }
     Component { id: keysPage;       KeysSection {} }
     Component { id: sessionPage;    SessionSection {} }
+    Component { id: datetimePage;   DateTimeSection {
+        onOpenInput: root.go("input", "keyboard") } }
     Component {
         id: aboutPage
         SettingsSection {

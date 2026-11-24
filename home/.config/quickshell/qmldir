@@ -69,6 +69,7 @@ singleton GithubService      1.0 services/GithubService.qml
 singleton PackagesService    1.0 services/PackagesService.qml
 singleton ProfileService     1.0 services/ProfileService.qml
 singleton VersionService     1.0 services/VersionService.qml
+singleton DateTimeService    1.0 services/DateTimeService.qml
 
 Card             1.0 components/Card.qml
 ColorSwatch      1.0 components/ColorSwatch.qml
@@ -198,6 +199,7 @@ InputSection          1.0 settings/InputSection.qml
 MonitorsSection       1.0 settings/MonitorsSection.qml
 KeysSection           1.0 settings/KeysSection.qml
 SystemSection         1.0 settings/SystemSection.qml
+DateTimeSection       1.0 settings/DateTimeSection.qml
 ProfilesPart          1.0 settings/ProfilesPart.qml
 ControlsSection       1.0 settings/ControlsSection.qml
 FontPicker            1.0 settings/FontPicker.qml

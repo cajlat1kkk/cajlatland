@@ -189,3 +189,5 @@ wayland  # Cajlatland Switcher input-method-v2
 glib2  # Cajlatland Switcher input-method-v2
 
 pkgconf  # Cajlatland Switcher input-method-v2
+
+ibus  # GTK/Qt input method for Cajlatland Switcher
