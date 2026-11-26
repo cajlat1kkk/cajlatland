@@ -121,9 +121,10 @@ Item {
           page: monitorsPage },
 
         { id: "input", category: "desk", icon: "󰍽", label: Tr.t("Input"),
-          blurb: Tr.t("The keyboard, the pointer and the cursor."),
+          blurb: "Клавиатура, мышь и сенсорная панель.",
           tabs: [{ id: "keyboard", label: Tr.t("Keyboard") },
-                 { id: "pointer", label: Tr.t("Pointer") }],
+                 { id: "mouse", label: "Мышь" },
+                 { id: "touchpad", label: "Сенсорная панель" }],
           keywords: "input keyboard layout repeat mouse sensitivity pointer cursor size colour color shake find",
           page: inputPage },
 
@@ -282,27 +283,31 @@ Item {
             if (members.length === 0)
                 continue
             rows.push({ heading: true, label: group.label, id: `head:${group.id}` })
-            for (const entry of members)
-                rows.push({ heading: false, label: entry.label,
-                            icon: entry.icon, id: entry.id })
+            for (const entry of members) {
+                if (entry.tabs.length > 1)
+                    rows.push({heading: true, label: entry.label, id: "section:" + entry.id})
+                for (const part of entry.tabs)
+                    rows.push({heading: false, label: entry.tabs.length > 1 ? part.label : entry.label,
+                               icon: entry.icon, id: entry.id, tab: part.id})
+            }
         }
         return rows
     }
 
     RowLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: root.gap
+        anchors.margins: 0
+        spacing: 0
 
         // ── SIDEBAR ─────────────────────────────────────────────────────────
 
         Rectangle {
-            Layout.preferredWidth: 206
-            Layout.maximumWidth: 206
+            Layout.preferredWidth: 236
+            Layout.maximumWidth: 236
             Layout.fillWidth: false
             Layout.fillHeight: true
-            radius: Theme.radiusLarge
-            color: Theme.islandSurface
+            radius: 0
+            color: "#202020"
             border.color: Theme.islandBorder
             border.width: 1
 
@@ -311,37 +316,16 @@ Item {
                 anchors.margins: 8
                 spacing: 8
 
-                // ── SIGNATURE ───────────────────────────────────────────────
-                //
-                // The name in the script face, beside the palette board painted
-                // in the active palette.
-                Item {
+                Text {
                     Layout.fillWidth: true
-                    Layout.topMargin: 4
-                    implicitHeight: 38
-
-                    Row {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 8
-
-                        Image {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 34
-                            height: width
-                            source: Qt.resolvedUrl("../theme/cajlatland_logo.png")
-                            sourceClipRect: Qt.rect(240, 240, 560, 560)
-                            mipmap: true
-                        }
-
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "cajlatland"
-                            font.family: Theme.fontSignature
-                            font.pixelSize: 28
-                            color: Theme.text
-                        }
-                    }
+                    Layout.preferredHeight: 44
+                    text: "Настройки"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    color: Theme.text
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 17
+                    font.weight: Font.DemiBold
                 }
 
                 Rectangle {
@@ -426,9 +410,10 @@ Item {
                         readonly property bool active:
                             !entry.modelData.heading
                             && entry.modelData.id === root.section
+                            && entry.modelData.tab === root.tab
 
                         width: ListView.view.width
-                        height: entry.modelData.heading ? 24 : 30
+                        height: entry.modelData.heading ? 32 : 42
 
                         // Group heading; not clickable.
                         Text {
@@ -452,7 +437,7 @@ Item {
                             radius: Theme.radiusSmall
                             color: entry.active ? Theme.islandSurfaceHover
                                 : (entryMouse.containsMouse ? Theme.island : Qt.alpha(Theme.island, 0))
-                            border.color: entry.active ? Theme.accent : "transparent"
+                            border.color: "transparent"
                             border.width: 1
 
                             Behavior on color { ColorAnimation { duration: Theme.durationFast } }
@@ -487,7 +472,7 @@ Item {
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: root.go(entry.modelData.id, "")
+                                onClicked: root.go(entry.modelData.id, entry.modelData.tab)
                             }
                         }
                     }
@@ -520,7 +505,15 @@ Item {
                     onClicked: root.forward()
                 }
 
-                Item { Layout.fillWidth: true }
+                Text {
+                    Layout.fillWidth: true
+                    text: root.current.tabs.find(part => part.id === root.tab)?.label || root.current.label
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.text
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 17
+                    font.weight: Font.DemiBold
+                }
 
                 // This page, or this part of it, on the documentation site.
                 IconButton {
@@ -551,21 +544,11 @@ Item {
                 ColumnLayout {
                     id: body
 
-                    width: page.width
-                    spacing: root.gap
+                    width: Math.min(780, Math.max(0, page.width - 64))
+                    x: (page.width - width) / 2
+                    spacing: 24
 
-                    SettingsHero {
-                        Layout.fillWidth: true
-                        icon: root.current.icon
-                        title: root.current.label
-                    }
-
-                    TabStrip {
-                        Layout.fillWidth: true
-                        tabs: root.current.tabs
-                        current: root.tab
-                        onPicked: id => root.show(id)
-                    }
+                    Item { Layout.preferredHeight: 14 }
 
                     Loader {
                         id: pageLoader

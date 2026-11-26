@@ -54,6 +54,15 @@ OPTIONS = [
     ("input:kb_options", "str"),
     ("input:repeat_rate", "int"),
     ("input:sensitivity", "float"),
+    ("input:left_handed", "bool"),
+    ("input:natural_scroll", "bool"),
+    ("input:touchpad:natural_scroll", "bool"),
+    ("input:touchpad:tap-to-click", "bool"),
+    ("input:touchpad:disable_while_typing", "bool"),
+    ("input:touchpad:tap-and-drag", "bool"),
+    ("input:touchpad:clickfinger_behavior", "bool"),
+    ("input:touchpad:scroll_factor", "float"),
+
 ]
 
 # The xkb layout list. evdev is what Hyprland uses; base is its older name.

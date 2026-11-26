@@ -2,20 +2,31 @@
 import fcntl
 import struct
 import subprocess
-
+import json
+import os
 from pathlib import Path
 
-def find_touchpad():
-    for device in sorted(Path("/dev/input").glob("event*")):
-        properties = subprocess.run(["udevadm", "info", "--query=property", str(device)],
-                                    capture_output=True, text=True)
-        if "ID_INPUT_TOUCHPAD=1" in properties.stdout.splitlines():
-            return device
-    return None
+SETTINGS = Path(os.environ.get("XDG_STATE_HOME", Path.home()/".local/state"))/"quickshell/settings.json"
+def action(fingers, direction):
+    try:
+        value = json.loads(SETTINGS.read_text()).get("touchpadGestures", {}).get(f"{fingers}_{direction}", "default")
+    except (OSError, ValueError):
+        value = "default"
+    if value == "default":
+        return {(4,"up"):"volumeUp",(4,"down"):"volumeDown",(4,"tap"):"play"}.get((fingers,direction),"none")
+    return value
 
-DEVICE = find_touchpad()
-if DEVICE is None:
-    raise SystemExit(0)
+def perform(value):
+    commands = {
+        "volumeUp":["wpctl","set-volume","-l","1.0","@DEFAULT_AUDIO_SINK@","10%+"],
+        "volumeDown":["wpctl","set-volume","@DEFAULT_AUDIO_SINK@","10%-"],
+        "play":["playerctl","play-pause"],
+        "next":["playerctl","next"],
+    }
+    if value in commands:
+        subprocess.run(commands[value],check=False)
+
+DEVICE = "/dev/input/by-path/pci-0000:00:15.0-platform-i2c_designware.0-event-mouse"
 EVENT = struct.Struct("@llHHi")
 with open(DEVICE, "rb", buffering=0) as pad:
     def resolution(axis):
@@ -32,6 +43,8 @@ with open(DEVICE, "rb", buffering=0) as pad:
     sliding = False
     sink = "@DEFAULT_AUDIO_SINK@"
     last_update = 0.0
+    gesture_anchor = None
+    gesture_count = 0
     while True:
         seconds, micros, kind, code, value = EVENT.unpack(pad.read(EVENT.size))
         now = seconds + micros / 1e6
@@ -64,28 +77,24 @@ with open(DEVICE, "rb", buffering=0) as pad:
                     base = origin.setdefault(finger, tuple(pos))
                     moved |= any(abs(a-b) > limit for a,b,limit in zip(pos,base,limits))
             fingers = frozenset(active)
-            four = peak <= 4 and (len(active) == 4 or four_down)
-            if four and active and all(None not in coords.get(i, [None]) for i in active):
-                x, y = [sum(coords[i][axis] for i in active) / len(active)
-                        / (limits[axis] / 3) for axis in (0, 1)]
-                if tracking != fingers:
-                    tracking = fingers
-                    anchor_x, anchor_y = x, y
-                dy = anchor_y - y
-                if not sliding and abs(dy) >= 3 and abs(dy) > abs(x - anchor_x):
-                    sliding = moved = True
-                if sliding and abs(dy) >= 1 and now - last_update >= 0.035:
-                    percent = min(100, int(abs(dy) * 2))
-                    if dy > 0:
-                        subprocess.run(["wpctl", "set-mute", sink, "0"], check=False)
-                    subprocess.run(["wpctl", "set-volume", "-l", "1.0", sink,
-                                    f"{percent}%{'+' if dy > 0 else '-'}"], check=False)
-                    anchor_y -= (1 if dy > 0 else -1) * percent / 2
-                    last_update = now
+            if len(active) in (2,3,4) and all(None not in coords.get(i,[None]) for i in active):
+                count=len(active)
+                x,y=[sum(coords[i][axis] for i in active)/count/(limits[axis]/3) for axis in (0,1)]
+                if gesture_count!=count or gesture_anchor is None:
+                    gesture_anchor=(x,y)
+                    gesture_count=count
+                dx,dy=x-gesture_anchor[0],y-gesture_anchor[1]
+                if max(abs(dx),abs(dy))>=8 and now-last_update>=0.035:
+                    direction=("right" if dx>0 else "left") if abs(dx)>abs(dy) else ("down" if dy>0 else "up")
+                    perform(action(count,direction))
+                    gesture_anchor=(x,y)
+                    last_update=now
+                    moved=True
             else:
-                tracking = None
+                gesture_anchor=None
+                gesture_count=0
             if not active and start is not None:
                 sliding = False
-                if peak == 4 and not moved and 0.025 <= now-start <= 0.38:
-                    subprocess.run(["playerctl", "play-pause"], check=False)
+                if peak in (2,3,4) and not moved and 0.025 <= now-start <= 0.38:
+                    perform(action(peak,"tap"))
                 peak, start, moved = 0, None, False

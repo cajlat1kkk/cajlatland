@@ -100,6 +100,7 @@ Singleton {
     readonly property alias clipboardWipeOnLock: config.clipboardWipeOnLock
     readonly property alias lockBlur: config.lockBlur
     readonly property alias lockClock: config.lockClock
+    readonly property alias touchpadGestures: config.touchpadGestures
     readonly property alias lockMusic: config.lockMusic
     readonly property alias lockWallpaper: config.lockWallpaper
     readonly property alias lockMusicGround: config.lockMusicGround
@@ -688,6 +689,7 @@ Singleton {
         // "player" or "off". Behind the lock: the "cover" blurred while music
         // plays and the desktop otherwise, the "desktop" (a screenshot,
         // blurred), or the "wallpaper", so nothing that was open shows.
+        property var touchpadGestures: ({})
         property string lockMusic: "lyrics"
         property string lockWallpaper: ""
         property string lockMusicGround: "cover"

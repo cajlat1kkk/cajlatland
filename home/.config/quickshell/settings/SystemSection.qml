@@ -280,7 +280,7 @@ SettingsSection {
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     topPadding: 4
-                    text: "github.com/andreumassanet/cajlatland"
+                    text: "github.com/cajlat1kkk/cajlatland"
                     font.family: Theme.fontMono
                     font.pixelSize: Theme.fontSizeLabel
                     color: repoMouse.containsMouse ? Theme.accent : Theme.textMuted
@@ -294,7 +294,7 @@ SettingsSection {
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: Qt.openUrlExternally(
-                            "https://github.com/andreumassanet/impasto")
+                            "https://github.com/cajlat1kkk/cajlatland")
                     }
                 }
             }
@@ -315,6 +315,22 @@ SettingsSection {
                 return
             VersionService.checkStale()
             VersionService.listFiles()
+        }
+
+        SettingGroup {
+            title: "Что нового"
+            SettingRow { label: "Настройки"; reading: "Категории слева, отдельные страницы клавиатуры, мыши и сенсорной панели." }
+            SettingRow { label: "Жесты"; reading: "Действия для двух, трёх и четырёх пальцев, обновлённые списки выбора." }
+            SettingRow {
+                label: "Источник обновлений"
+                reading: "cajlat1kkk / cajlatland · main"
+                PillButton {
+                    text: "Репозиторий"
+                    implicitWidth: 124
+                    implicitHeight: 34
+                    onClicked: Qt.openUrlExternally("https://github.com/cajlat1kkk/cajlatland")
+                }
+            }
         }
 
         SettingGroup {

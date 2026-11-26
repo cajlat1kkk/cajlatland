@@ -9,6 +9,7 @@
 
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls as Controls
 
 import "../theme"
 import "../services"
@@ -49,7 +50,7 @@ SettingsSection {
     ColumnLayout {
         Layout.fillWidth: true
         visible: root.tab === "keyboard"
-        spacing: root.spacing
+        spacing: 24
 
         SettingGroup {
             title: Tr.t("Layouts")
@@ -111,9 +112,26 @@ SettingsSection {
 
     ColumnLayout {
         Layout.fillWidth: true
-        visible: root.tab === "pointer"
-        spacing: root.spacing
+        visible: root.tab === "mouse" || root.tab === "pointer"
+        spacing: 24
 
+        SettingGroup {
+            title: "Мышь"
+            SettingRow {
+                label: "Основная кнопка справа"
+                ToggleSwitch {
+                    checked: ["true", "1"].indexOf(String(CompositorService.value("input:left_handed", false))) >= 0
+                    onToggled: checked => CompositorService.remember("input:left_handed", checked)
+                }
+            }
+            SettingRow {
+                label: "Естественная прокрутка мыши"
+                ToggleSwitch {
+                    checked: ["true", "1"].indexOf(String(CompositorService.value("input:natural_scroll", false))) >= 0
+                    onToggled: checked => CompositorService.remember("input:natural_scroll", checked)
+                }
+            }
+        }
         SettingGroup {
             title: Tr.t("Pointer")
             note: Tr.t("Zero is the device's native speed; either side adjusts libinput's acceleration.")
@@ -229,5 +247,137 @@ SettingsSection {
                 }
             }
         }
+    }
+
+    ColumnLayout {
+        Layout.fillWidth: true
+        visible: root.tab === "touchpad"
+        spacing: 24
+        SettingGroup {
+            title: "Прокрутка"
+            SettingRow {
+                label: "Естественная прокрутка"
+                ToggleSwitch {
+                    checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:natural_scroll", false))) >= 0
+                    onToggled: checked => CompositorService.remember("input:touchpad:natural_scroll", checked)
+                }
+            }
+            SettingSlider {
+                label: "Скорость прокрутки"
+                value: CompositorService.value("input:touchpad:scroll_factor", 1)
+                from: 0.1
+                to: 3
+                stepSize: 0.1
+                decimals: 1
+                onMoved: value => CompositorService.remember("input:touchpad:scroll_factor", value.toFixed(1))
+            }
+        }
+        SettingGroup {
+            title: "Касания и нажатия"
+            SettingRow {
+                label: "Нажатие касанием"
+                ToggleSwitch {
+                    checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:tap-to-click", false))) >= 0
+                    onToggled: checked => CompositorService.remember("input:touchpad:tap-to-click", checked)
+                }
+            }
+            SettingRow {
+                label: "Отключать при наборе текста"
+                ToggleSwitch {
+                    checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:disable_while_typing", false))) >= 0
+                    onToggled: checked => CompositorService.remember("input:touchpad:disable_while_typing", checked)
+                }
+            }
+            SettingRow {
+                label: "Перетаскивание касанием"
+                ToggleSwitch {
+                    checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:tap-and-drag", false))) >= 0
+                    onToggled: checked => CompositorService.remember("input:touchpad:tap-and-drag", checked)
+                }
+            }
+            SettingRow {
+                label: "Правый щелчок двумя пальцами"
+                ToggleSwitch {
+                    checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:clickfinger_behavior", false))) >= 0
+                    onToggled: checked => CompositorService.remember("input:touchpad:clickfinger_behavior", checked)
+                }
+            }
+        }
+        Repeater {
+            model: [2, 3, 4]
+            SettingGroup {
+                id: gestureGroup
+                required property int modelData
+                title: "Жесты · " + modelData + " пальца"
+                note: "Действие выполняется при движении на 8 мм. Стандартные жесты сохраняют поведение системы."
+                Repeater {
+                    model: [{id:"up",label:"Вверх"}, {id:"down",label:"Вниз"}, {id:"left",label:"Влево"}, {id:"right",label:"Вправо"}, {id:"tap",label:"Касание"}]
+                    SettingRow {
+                        id: gestureRow
+                        required property var modelData
+                        readonly property string key: gestureGroup.modelData + "_" + modelData.id
+                        label: modelData.label
+                        Controls.ComboBox {
+                            id: gestureChoice
+                            background: Rectangle {
+                                color: gestureChoice.hovered ? "#343a37" : "#242927"
+                                radius: 10
+                                border.width: 1
+                                border.color: gestureChoice.activeFocus ? Theme.accent : "#3b433f"
+                            }
+                            contentItem: Text {
+                                text: gestureChoice.displayText
+                                color: Theme.text
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 13
+                                verticalAlignment: Text.AlignVCenter
+                                leftPadding: 10
+                                rightPadding: 24
+                                elide: Text.ElideRight
+                            }
+                            popup: Controls.Popup {
+                                y: gestureChoice.height + 4
+                                width: gestureChoice.width
+                                padding: 6
+                                background: Rectangle { color: "#202623"; radius: 12; border.color: "#424c46" }
+                                contentItem: ListView {
+                                    implicitHeight: contentHeight
+                                    model: gestureChoice.popup.visible ? gestureChoice.delegateModel : null
+                                    clip: true
+                                }
+                            }
+                            delegate: Controls.ItemDelegate {
+                                required property int index
+                                required property var modelData
+                                width: gestureChoice.width - 12
+                                height: 38
+                                text: modelData.label
+                                contentItem: Text { text: modelData.label; color: Theme.text; font.pixelSize: 13; leftPadding: 8; verticalAlignment: Text.AlignVCenter }
+                                background: Rectangle { radius: 8; color: parent.hovered || gestureChoice.currentIndex === parent.index ? "#34463d" : "transparent" }
+                            }
+                            implicitWidth: 200
+                            implicitHeight: 38
+                            textRole: "label"
+                            valueRole: "id"
+                            model: [
+                                {id:"default",label:"По умолчанию"},
+                                {id:"none",label:"Без действия"},
+                                {id:"volumeUp",label:"Увеличить громкость"},
+                                {id:"volumeDown",label:"Уменьшить громкость"},
+                                {id:"play",label:"Воспроизведение / пауза"},
+                                {id:"next",label:"Следующий трек"}
+                            ]
+                            currentIndex: model.findIndex(option => option.id === (SettingsService.touchpadGestures[gestureRow.key] || "default"))
+                            onActivated: {
+                                const next = Object.assign({}, SettingsService.touchpadGestures)
+                                next[gestureRow.key] = currentValue
+                                SettingsService.set("touchpadGestures", next)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
