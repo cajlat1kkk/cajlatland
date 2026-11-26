@@ -38,10 +38,10 @@ ColumnLayout {
         Text {
             text: root.title
             font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSizeLabel
+            font.pixelSize: 13
             font.weight: Font.DemiBold
-            font.letterSpacing: 0.8
-            font.capitalization: Font.AllUppercase
+            font.letterSpacing: 0
+            font.capitalization: Font.MixedCase
             color: Theme.textMuted
         }
 
@@ -74,11 +74,11 @@ ColumnLayout {
         Layout.leftMargin: 4
         Layout.rightMargin: 20
         Layout.bottomMargin: 2
-        visible: root.opened && root.told !== ""
-        text: root.told
+        visible: root.note !== "" || (root.opened && root.hint !== "")
+        text: root.opened ? root.told : root.note
         wrapMode: Text.WordWrap
         font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontSizeLabel
+        font.pixelSize: 13
         color: Theme.textMuted
     }
 }

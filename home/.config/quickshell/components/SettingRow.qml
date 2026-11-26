@@ -37,7 +37,7 @@ Item {
     default property alias control: holder.data
 
     Layout.fillWidth: true
-    implicitHeight: Math.max(48, body.implicitHeight + 16)
+    implicitHeight: Math.max(64, body.implicitHeight + 24)
     opacity: root.locked ? 0.55 : 1
 
     Behavior on opacity { NumberAnimation { duration: Theme.durationFast } }
@@ -48,8 +48,8 @@ Item {
         id: body
 
         anchors.fill: parent
-        anchors.leftMargin: 14
-        anchors.rightMargin: 14
+        anchors.leftMargin: 20
+        anchors.rightMargin: 20
         spacing: 16
 
         SettingLabel {

@@ -166,38 +166,7 @@ Item {
     //
     // Where the help button takes each page, or one part of it, on the
     // documentation site. Keyed "section" or "section/part".
-    readonly property string guideRoot: "https://andreumassanet.github.io/impasto-docs/"
-    readonly property var guides: ({
-        "bar": "shell/bar/",
-        "bar/layout": "shell/bar/#arranging",
-        "bar/workspaces": "shell/bar/#size-and-workspaces",
-        "island": "shell/island/#settings",
-        "island/notifications": "shell/island/#notifications",
-        "widgets": "shell/desktop/#arranging",
-        "modules": "shell/desktop/",
-        "controls": "shell/control-centre/#arranging",
-        "dock": "shell/dock/#settings",
-        "launcher": "shell/launcher/#settings",
-        "launcher/sigils": "shell/launcher/#modes",
-        "launcher/clipboard": "shell/launcher/#the-clipboard",
-        "appearance": "shell/settings/#the-pages",
-        "appearance/wallpaper": "theming/palettes/",
-        "windows": "shell/settings/#the-pages",
-        "monitors": "shell/displays/",
-        "monitors/arrangement": "shell/displays/#arrangement",
-        "monitors/screen": "shell/displays/#the-screen",
-        "monitors/lid": "shell/displays/#the-lid",
-        "input": "shell/settings/#the-pages",
-        "keys": "shell/keys-and-packages/#changing-a-key",
-        "session": "shell/lock-and-login/",
-        "session/lock": "shell/lock-and-login/#the-lock-screen",
-        "session/idle": "shell/lock-and-login/#when-you-leave-it-alone",
-        "system": "shell/settings/#profiles",
-        "system/machine": "shell/settings/#language"
-    })
-
-    readonly property string guide: root.guideRoot
-        + (root.guides[`${root.section}/${root.tab}`] ?? root.guides[root.section] ?? "")
+    readonly property string guide: "https://github.com/cajlat1kkk/cajlatland#readme"
 
     // ── NAVIGATION ──────────────────────────────────────────────────────────
     //
@@ -284,11 +253,13 @@ Item {
                 continue
             rows.push({ heading: true, label: group.label, id: `head:${group.id}` })
             for (const entry of members) {
-                if (entry.tabs.length > 1)
-                    rows.push({heading: true, label: entry.label, id: "section:" + entry.id})
-                for (const part of entry.tabs)
-                    rows.push({heading: false, label: entry.tabs.length > 1 ? part.label : entry.label,
-                               icon: entry.icon, id: entry.id, tab: part.id})
+                rows.push({heading: false, label: entry.label, icon: entry.icon,
+                           id: entry.id, tab: "", child: false})
+                if (entry.id === root.section || root.filter !== "") {
+                    for (const part of entry.tabs)
+                        rows.push({heading: false, label: part.label, icon: "",
+                                   id: entry.id, tab: part.id, child: true})
+                }
             }
         }
         return rows
@@ -302,35 +273,36 @@ Item {
         // ── SIDEBAR ─────────────────────────────────────────────────────────
 
         Rectangle {
-            Layout.preferredWidth: 236
-            Layout.maximumWidth: 236
+            Layout.preferredWidth: 264
+            Layout.maximumWidth: 264
             Layout.fillWidth: false
             Layout.fillHeight: true
             radius: 0
-            color: "#202020"
-            border.color: Theme.islandBorder
+            color: "#1d2025"
+            border.color: "#30343c"
             border.width: 1
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 8
-                spacing: 8
+                anchors.margins: 12
+                spacing: 12
 
                 Text {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 44
-                    text: "Настройки"
-                    horizontalAlignment: Text.AlignHCenter
+                    text: "Параметры Cajlatland"
+                    horizontalAlignment: Text.AlignLeft
+                    leftPadding: 10
                     verticalAlignment: Text.AlignVCenter
                     color: Theme.text
                     font.family: Theme.fontFamily
-                    font.pixelSize: 17
+                    font.pixelSize: 20
                     font.weight: Font.DemiBold
                 }
 
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 30
+                    Layout.preferredHeight: 38
                     radius: Theme.radiusSmall
                     color: Theme.island
                     border.color: search.activeFocus ? Theme.accent : Theme.islandBorder
@@ -410,10 +382,10 @@ Item {
                         readonly property bool active:
                             !entry.modelData.heading
                             && entry.modelData.id === root.section
-                            && entry.modelData.tab === root.tab
+                            && (entry.modelData.tab === root.tab || !entry.modelData.child)
 
                         width: ListView.view.width
-                        height: entry.modelData.heading ? 32 : 42
+                        height: entry.modelData.heading ? 30 : (entry.modelData.child ? 36 : 44)
 
                         // Group heading; not clickable.
                         Text {
@@ -426,7 +398,7 @@ Item {
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeLabel
                             font.weight: Font.DemiBold
-                            font.letterSpacing: 0.8
+                            font.letterSpacing: 0
                             color: Theme.textMuted
                             opacity: 0.7
                         }
@@ -435,17 +407,26 @@ Item {
                             visible: !entry.modelData.heading
                             anchors.fill: parent
                             radius: Theme.radiusSmall
-                            color: entry.active ? Theme.islandSurfaceHover
-                                : (entryMouse.containsMouse ? Theme.island : Qt.alpha(Theme.island, 0))
+                            color: entry.active ? "#343941" : (entryMouse.containsMouse ? "#292e35" : "transparent")
                             border.color: "transparent"
                             border.width: 1
 
                             Behavior on color { ColorAnimation { duration: Theme.durationFast } }
                             Behavior on border.color { ColorAnimation { duration: Theme.durationFast } }
 
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 3
+                                height: 18
+                                radius: 2
+                                color: Theme.accent
+                                visible: entry.active && (!entry.modelData.child || entry.modelData.tab === root.tab)
+                            }
+
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.leftMargin: 11
+                                anchors.leftMargin: entry.modelData.child ? 38 : 14
                                 anchors.rightMargin: 11
                                 spacing: 11
 
@@ -453,7 +434,7 @@ Item {
                                     text: entry.modelData.icon ?? ""
                                     font.family: Theme.fontMono
                                     font.pixelSize: 13
-                                    color: entry.active ? Theme.accent : Theme.textMuted
+                                    color: Theme.textMuted
                                 }
 
                                 Text {
@@ -463,7 +444,7 @@ Item {
                                     font.family: Theme.fontFamily
                                     font.pixelSize: Theme.fontSizeSmall
                                     font.weight: entry.active ? Font.DemiBold : Font.Normal
-                                    color: entry.active ? Theme.accent : Theme.text
+                                    color: Theme.text
                                 }
                             }
 
@@ -485,7 +466,8 @@ Item {
         ColumnLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: root.gap
+            spacing: 16
+            Layout.margins: 18
 
             RowLayout {
                 Layout.fillWidth: true
@@ -507,11 +489,13 @@ Item {
 
                 Text {
                     Layout.fillWidth: true
-                    text: root.current.tabs.find(part => part.id === root.tab)?.label || root.current.label
-                    horizontalAlignment: Text.AlignHCenter
+                    text: root.current.label + (root.tab ? "  ›  " + (root.current.tabs.find(part => part.id === root.tab)?.label || "") : "")
+                    horizontalAlignment: Text.AlignLeft
+                    leftPadding: 8
+                    elide: Text.ElideRight
                     color: Theme.text
                     font.family: Theme.fontFamily
-                    font.pixelSize: 17
+                    font.pixelSize: 20
                     font.weight: Font.DemiBold
                 }
 

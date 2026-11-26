@@ -28,7 +28,7 @@ ColumnLayout {
     Text {
         Layout.fillWidth: true
         text: root.label
-        elide: Text.ElideRight
+        wrapMode: Text.WordWrap
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontSizeSmall
         font.weight: Font.Medium
@@ -51,7 +51,7 @@ ColumnLayout {
         Text {
             Layout.fillWidth: true
             text: root.locked ? root.reason : root.reading
-            elide: Text.ElideRight
+            wrapMode: Text.WordWrap
             font.family: Theme.fontFamily
             font.pixelSize: Theme.fontSizeLabel
             color: root.alarm && !root.locked ? Theme.red : Theme.textMuted

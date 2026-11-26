@@ -46,10 +46,10 @@ FloatingWindow {
     // Matched by the window rule in `windowrules.lua`.
     title: "Settings"
 
-    implicitWidth: 980
-    implicitHeight: 680
+    implicitWidth: 1100
+    implicitHeight: 760
 
-    color: Theme.island
+    color: "#181b20"
     visible: root.shown
 
     onVisibleChanged: {

@@ -29,7 +29,7 @@ ColumnLayout {
     default property alias rows: list.data
 
     Layout.fillWidth: true
-    spacing: 7
+    spacing: 10
 
     GroupHeading {
         visible: root.title !== ""
@@ -41,9 +41,9 @@ ColumnLayout {
     Rectangle {
         Layout.fillWidth: true
         implicitHeight: list.implicitHeight
-        radius: Theme.radiusMedium
-        color: root.bare ? "transparent" : Theme.surfaceIn(QsWindow.window)
-        border.color: Theme.borderIn(QsWindow.window)
+        radius: 10
+        color: root.bare ? "transparent" : "#252930"
+        border.color: "#363b43"
         border.width: root.bare ? 0 : 1
 
         ColumnLayout {
