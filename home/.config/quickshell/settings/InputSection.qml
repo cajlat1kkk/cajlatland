@@ -118,7 +118,8 @@ SettingsSection {
         SettingGroup {
             title: "Мышь"
             SettingRow {
-                label: "Основная кнопка справа"
+                label: "Режим для левшей"
+                reading: "Правая кнопка выполняет обычный щелчок, левая открывает контекстное меню."
                 ToggleSwitch {
                     checked: ["true", "1"].indexOf(String(CompositorService.value("input:left_handed", false))) >= 0
                     onToggled: checked => CompositorService.remember("input:left_handed", checked)
@@ -257,6 +258,7 @@ SettingsSection {
             title: "Прокрутка"
             SettingRow {
                 label: "Естественная прокрутка"
+                reading: "Содержимое движется в ту же сторону, что и пальцы."
                 ToggleSwitch {
                     checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:natural_scroll", false))) >= 0
                     onToggled: checked => CompositorService.remember("input:touchpad:natural_scroll", checked)
@@ -282,7 +284,8 @@ SettingsSection {
                 }
             }
             SettingRow {
-                label: "Отключать при наборе текста"
+                label: "Защита от случайных касаний"
+                reading: "Сенсорная панель временно не реагирует во время набора текста."
                 ToggleSwitch {
                     checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:disable_while_typing", false))) >= 0
                     onToggled: checked => CompositorService.remember("input:touchpad:disable_while_typing", checked)
@@ -290,13 +293,15 @@ SettingsSection {
             }
             SettingRow {
                 label: "Перетаскивание касанием"
+                reading: "Коснитесь дважды и двигайте палец, не отрывая его после второго касания."
                 ToggleSwitch {
                     checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:tap-and-drag", false))) >= 0
                     onToggled: checked => CompositorService.remember("input:touchpad:tap-and-drag", checked)
                 }
             }
             SettingRow {
-                label: "Правый щелчок двумя пальцами"
+                label: "Щелчок двумя пальцами"
+                reading: "Нажмите на панель двумя пальцами, чтобы открыть контекстное меню."
                 ToggleSwitch {
                     checked: ["true", "1"].indexOf(String(CompositorService.value("input:touchpad:clickfinger_behavior", false))) >= 0
                     onToggled: checked => CompositorService.remember("input:touchpad:clickfinger_behavior", checked)

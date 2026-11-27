@@ -155,7 +155,7 @@ static void gesture(State *s,struct zwp_input_method_v2 *im,int sig) {
     const char *check[]={"/usr/bin/python3",s->helper,"check",NULL};
     char *app=run(check,"");
     if(!app || !*app){g_free(app);return;}
-    const char *cmd[]={"/usr/bin/python3",s->manual_tool,NULL};
+    const char *cmd[]={"/usr/bin/python3",s->manual_tool,"--previous-layout",NULL};
     char *out=run(cmd,s->manual);
     if(out && *out && strlen(out)<=4000 && strcmp(out,s->manual)){
         if(!s->selected)zwp_input_method_v2_delete_surrounding_text(im,strlen(s->manual),0);

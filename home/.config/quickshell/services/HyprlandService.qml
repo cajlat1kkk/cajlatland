@@ -235,6 +235,8 @@ QtObject {
     // (`keybinds.lua`). A dot on a bar and a cell in the overview are both
     // drawn on one screen and mean it.
     function focus(workspaceId: int): void {
+        if (root.activeOn(root.focusedMonitor) === workspaceId)
+            return
         Hyprland.dispatch(
             `hl.dsp.focus({ workspace = ${workspaceId}, on_current_monitor = true })`)
     }

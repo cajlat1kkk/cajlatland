@@ -32,19 +32,12 @@ for _, side in ipairs({"L", "R"}) do
             command("USR1")
         else
             local runtime = os.getenv("XDG_RUNTIME_DIR")
-            -- r+ avoids blocking the compositor if the service has stopped.
-            -- Check existence first: io.open("r+") never creates the FIFO.
             local pipe = runtime and io.open(runtime .. "/cajlatland-switcher.shift", "r+")
-            if pipe then
-                pipe:write("s")
-                pipe:close()
-            end
+            if pipe then pipe:write("s"); pipe:close() end
             local ticket = {}
             pending = ticket
             hl.timer(function()
-                if pending == ticket then
-                    pending = nil
-                end
+                if pending == ticket then pending = nil end
             end, {timeout=300, type="oneshot"})
         end
     end, { release=true, non_consuming=true, description="Switcher · Короткое нажатие Shift" })

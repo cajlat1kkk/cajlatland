@@ -191,6 +191,45 @@ lava() {
 # · machine-specific settings, outside the repository
 if [[ -r ~/.zshrc.local ]]; then
     source ~/.zshrc.local
-elif [[ -o interactive ]] && command -v fastfetch >/dev/null; then
+fi
+
+if [[ -o interactive && -t 1 ]] && command -v fastfetch >/dev/null; then
     fastfetch
+fi
+
+# Clipboard for selections made in the Zsh line editor.
+if [[ -o interactive && -t 0 ]] && (( $+commands[wl-copy] && $+commands[wl-paste] )); then
+    autoload -Uz add-zle-hook-widget
+
+    _caj_zle_clipboard_start() {
+        # ZLE restores the terminal mode when it hands control to a command.
+        # Disable the driver's interrupt key while editing so the widget sees it.
+        stty intr undef </dev/tty
+    }
+
+    _caj_zle_copy_or_break() {
+        if (( REGION_ACTIVE && MARK != CURSOR )); then
+            local -i start=$(( MARK < CURSOR ? MARK : CURSOR ))
+            local -i end=$(( MARK > CURSOR ? MARK : CURSOR ))
+            print -rn -- "${BUFFER[start+1,end]}" | wl-copy
+            REGION_ACTIVE=0
+        else
+            zle send-break
+        fi
+    }
+
+    _caj_zle_paste() {
+        local text
+        text=$(wl-paste --no-newline && print -rn -- .) || return
+        LBUFFER+=${text%.}
+    }
+
+    zle -N _caj_zle_copy_or_break
+    zle -N _caj_zle_paste
+    add-zle-hook-widget line-init _caj_zle_clipboard_start
+    for _caj_zle_map in emacs viins vicmd; do
+        bindkey -M "$_caj_zle_map" '^C' _caj_zle_copy_or_break
+        bindkey -M "$_caj_zle_map" '^V' _caj_zle_paste
+    done
+    unset _caj_zle_map
 fi

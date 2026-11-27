@@ -175,67 +175,51 @@ SettingsSection {
         visible: root.tab === "machine"
         spacing: root.spacing
 
-        // Strings missing from `Tr.qml` fall back to English.
-        SettingGroup {
-            title: Tr.t("This window")
-            note: Tr.t("The language of this window.")
-            hint: Tr.t("The whole shell is translated, and anything without a translation appears in English. The login screen and the files the shell writes, such as generated themes, are always in English.")
-
-            SettingRow {
-                label: Tr.t("Language")
-
-                SegmentedControl {
-                    options: Tr.languages
-                    current: SettingsService.language
-                    onSelected: id => SettingsService.set("language", id)
+        GridLayout {
+            Layout.fillWidth: true
+            columns: root.width > 650 ? 3 : 2
+            columnSpacing: 14
+            rowSpacing: 14
+            Repeater {
+                model: [
+                    {label: "Процессор", icon: "󰻠", value: StatsService.cpuModel || "Загрузка…", note: StatsService.cores.length + " потоков"},
+                    {label: "Оперативная память", icon: "󰍛", value: StatsService.memoryTotal > 0 ? (StatsService.memoryTotal / 1073741824).toFixed(1) + " ГиБ" : "Загрузка…", note: "Занято " + Math.round(StatsService.memoryFraction * 100) + " %"},
+                    {label: "Cajlatland", icon: "󰣇", value: root.release.name, note: root.release.note},
+                    {label: "Время работы", icon: "󰥔", value: StatsService.uptime > 0 ? root.spell(StatsService.uptime) : "—", note: "С последнего запуска"}
+                ]
+                Rectangle {
+                    required property var modelData
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    Layout.preferredHeight: 176
+                    radius: 9
+                    color: "#2b2d35"
+                    border.color: "#363943"
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 20
+                        spacing: 14
+                        Text { text: modelData.icon + "  " + modelData.label; color: Theme.textMuted; font.pixelSize: 13; font.family: Theme.fontFamily }
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            text: modelData.value
+                            wrapMode: Text.WordWrap
+                            font.pixelSize: 19
+                            font.weight: Font.DemiBold
+                            color: Theme.text
+                        }
+                        Text { Layout.fillWidth: true; text: modelData.note; color: Theme.textMuted; font.pixelSize: 12; elide: Text.ElideRight }
+                    }
                 }
             }
         }
-
         SettingGroup {
-            title: Tr.t("This machine")
-
-            SettingBlock {
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 14
-
-                    Figure {
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                        label: Tr.t("PROCESSOR")
-                        value: StatsService.cpuModel || "—"
-                        note: `${StatsService.cores.length} ${Tr.t("threads")}`
-                    }
-
-                    Figure {
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                        label: Tr.t("MEMORY")
-                        value: StatsService.memoryTotal > 0
-                            ? `${(StatsService.memoryTotal / 1024 / 1024 / 1024).toFixed(1)} GiB`
-                            : "—"
-                        note: `${Math.round(StatsService.memoryFraction * 100)}${Tr.t("% in use")}`
-                    }
-
-                    Figure {
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                        label: Tr.t("UPTIME")
-                        value: StatsService.uptime > 0 ? root.spell(StatsService.uptime) : "—"
-                        note: Tr.t("since boot")
-                    }
-
-                    // What `setup` last installed, and the branch it came from.
-                    Figure {
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                        label: Tr.t("VERSION")
-                        value: root.release.name
-                        note: root.release.note
-                    }
-                }
-            }
+            title: "Характеристики устройства"
+            SettingRow { label: "Процессор"; reading: StatsService.cpuModel || "Загрузка…" }
+            SettingRow { label: "Оперативная память"; reading: StatsService.memoryTotal > 0 ? (StatsService.memoryTotal / 1073741824).toFixed(1) + " ГиБ" : "Загрузка…" }
+            SettingRow { label: "Версия Cajlatland"; reading: root.release.name }
+            SettingRow { label: "Источник обновлений"; reading: "github.com/cajlat1kkk/cajlatland" }
         }
 
         // Colophon: the palette board over the name in the signature face.

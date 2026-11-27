@@ -49,7 +49,7 @@ hl.window_rule({
 
     float  = true,
     center = true,
-    size   = {980, 680},
+    size   = {1240, 820},
 })
 
 
@@ -103,6 +103,21 @@ hl.window_rule({
 
 
 -- ── APPS ────────────────────────────────────────────────────────────────────
+
+-- The Chromium capture notice is an XWayland window with no WM_CLASS.
+-- Keep its controls above the dock and usable with the regular Super+drag bind.
+hl.window_rule({
+    name  = "browser-screen-share-notice",
+    match = {
+        class    = "^$",
+        title    = "^(Приложению .+ предоставлен доступ к[ \u{a0}\u{202f}]вашему экрану|.+ is sharing (your screen|a window))\\.$",
+        xwayland = true,
+    },
+
+    tag   = "+browser-screen-share-notice",
+    float = true,
+    move  = {"(monitor_w-window_w)/2", "monitor_h-window_h-80"},
+})
 
 hl.window_rule({
     name  = "thunar-dialogs",

@@ -172,7 +172,7 @@ Item {
     //
     // A history rather than a single id, so a page that links to another can
     // be left with the back button.
-    property var trail: [{ section: "bar", tab: "style" }]
+    property var trail: [{ section: "system", tab: "machine" }]
     property int cursor: 0
 
     readonly property string section: root.trail[root.cursor].section
@@ -273,12 +273,12 @@ Item {
         // ── SIDEBAR ─────────────────────────────────────────────────────────
 
         Rectangle {
-            Layout.preferredWidth: 264
-            Layout.maximumWidth: 264
+            Layout.preferredWidth: 290
+            Layout.maximumWidth: 290
             Layout.fillWidth: false
             Layout.fillHeight: true
             radius: 0
-            color: "#1d2025"
+            color: "#202024"
             border.color: "#30343c"
             border.width: 1
 
@@ -296,15 +296,55 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     color: Theme.text
                     font.family: Theme.fontFamily
-                    font.pixelSize: 20
+                    font.pixelSize: 24
                     font.weight: Font.DemiBold
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 12
+                    Layout.bottomMargin: 20
+                    spacing: 14
+                    Rectangle {
+                        width: 58
+                        height: 58
+                        radius: 29
+                        color: "#34363d"
+                        clip: true
+                        Image {
+                            anchors.fill: parent
+                            source: AccountService.avatar
+                            fillMode: Image.PreserveAspectCrop
+                            visible: status === Image.Ready
+                        }
+                        Text {
+                            anchors.centerIn: parent
+                            visible: AccountService.avatar === ""
+                            text: (AccountService.name || "C").slice(0,1).toUpperCase()
+                            font.pixelSize: 25
+                            color: Theme.text
+                        }
+                    }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 5
+                        Text {
+                            Layout.fillWidth: true
+                            text: AccountService.name || Quickshell.env("USER")
+                            font.pixelSize: 17
+                            font.weight: Font.DemiBold
+                            color: Theme.text
+                            elide: Text.ElideRight
+                        }
+                        Text { text: "Локальная учётная запись"; font.pixelSize: 12; color: Theme.textMuted }
+                    }
                 }
 
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 38
                     radius: Theme.radiusSmall
-                    color: Theme.island
+                    color: "#303036"
                     border.color: search.activeFocus ? Theme.accent : Theme.islandBorder
                     border.width: 1
 
@@ -358,7 +398,7 @@ Item {
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
                                 visible: search.text === ""
-                                text: Tr.t("Search settings")
+                                text: "Найти параметр"
                                 font: search.font
                                 color: Theme.textMuted
                             }
@@ -385,7 +425,7 @@ Item {
                             && (entry.modelData.tab === root.tab || !entry.modelData.child)
 
                         width: ListView.view.width
-                        height: entry.modelData.heading ? 30 : (entry.modelData.child ? 36 : 44)
+                        height: entry.modelData.heading ? 26 : (entry.modelData.child ? 36 : 48)
 
                         // Group heading; not clickable.
                         Text {
@@ -433,8 +473,8 @@ Item {
                                 Text {
                                     text: entry.modelData.icon ?? ""
                                     font.family: Theme.fontMono
-                                    font.pixelSize: 13
-                                    color: Theme.textMuted
+                                    font.pixelSize: 20
+                                    color: ["#65c9f3", "#9f9bf2", "#5bd1ba", "#f0b165"][Math.max(0, root.sections.findIndex(item => item.id === entry.modelData.id)) % 4]
                                 }
 
                                 Text {
@@ -442,7 +482,7 @@ Item {
                                     text: entry.modelData.label
                                     elide: Text.ElideRight
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeSmall
+                                    font.pixelSize: 14
                                     font.weight: entry.active ? Font.DemiBold : Font.Normal
                                     color: Theme.text
                                 }
@@ -495,7 +535,7 @@ Item {
                     elide: Text.ElideRight
                     color: Theme.text
                     font.family: Theme.fontFamily
-                    font.pixelSize: 20
+                    font.pixelSize: 24
                     font.weight: Font.DemiBold
                 }
 
@@ -528,7 +568,7 @@ Item {
                 ColumnLayout {
                     id: body
 
-                    width: Math.min(780, Math.max(0, page.width - 64))
+                    width: Math.min(1000, Math.max(0, page.width - 40))
                     x: (page.width - width) / 2
                     spacing: 24
 

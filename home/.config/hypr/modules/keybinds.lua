@@ -71,7 +71,7 @@ end
 
 hl.config({
     binds = {
-        workspace_back_and_forth = true,
+        workspace_back_and_forth = false,
     },
 })
 
@@ -161,36 +161,26 @@ bind(mainMod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "d" }), { d
 bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true, description = "Windows · Drag the window" })
 bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Windows · Resize the window" })
 
-
--- ── WORKSPACES ──────────────────────────────────────────────────────────────
-
--- The workspace each screen was showing before the one it shows now.
--- `workspace_back_and_forth` only reaches the plain dispatcher, and the
--- numbers use `on_current_monitor`; Hyprland's own previous is one for the
--- whole desk, which on two screens is the wrong one.
-local before  = {}
-local showing = {}
-
--- Seeded, so the first press of the number already showing has somewhere to
--- go back to. At the first parse there may be no monitors yet, and the event
--- below fills it in.
-for _, monitor in ipairs(hl.get_monitors() or {}) do
-    if monitor.active_workspace then
-        showing[monitor.name] = monitor.active_workspace.id
-    end
-end
-
-hl.on("workspace.active", function(workspace)
-    local monitor = workspace and workspace.monitor
-    if not monitor then
+-- Hyprland ignores the browser's XWayland minimize request. Hide only the
+-- tagged capture notice on the current workspace without closing the stream.
+bind(mainMod .. " + ALT + H", function()
+    local active = hl.get_active_special_workspace() or hl.get_active_workspace()
+    if not active then
         return
     end
-    local name = monitor.name
-    if showing[name] ~= nil and showing[name] ~= workspace.id then
-        before[name] = showing[name]
+    for _, window in ipairs(hl.get_windows({ tag = "browser-screen-share-notice*" })) do
+        if window.workspace and window.workspace.id == active.id then
+            hl.dispatch(hl.dsp.window.move({
+                window = window,
+                workspace = "special:screen-share-notices",
+                follow = false,
+            }))
+        end
     end
-    showing[name] = workspace.id
-end)
+end, { description = "Windows · Скрыть плашку демонстрации экрана" })
+
+
+-- ── WORKSPACES ──────────────────────────────────────────────────────────────
 
 -- Shared, or each screen with ten of its own: the shell writes the mode and
 -- the screens' order to a file, read on every press so a change needs no
@@ -225,15 +215,14 @@ local function screen_base(monitor)
     return 0
 end
 
--- The number of the workspace already here goes back to the one before it.
+-- Selecting the active workspace leaves focus in place.
 local function to_workspace(index)
     return function()
         local monitor = hl.get_active_monitor()
         local active  = hl.get_active_workspace()
-        local back    = monitor and before[monitor.name]
         local target  = screen_base(monitor) + index
-        if active and active.id == target and back and back ~= target then
-            target = back
+        if active and active.id == target then
+            return
         end
         hl.dispatch(hl.dsp.focus({ workspace = target, on_current_monitor = true }))
     end

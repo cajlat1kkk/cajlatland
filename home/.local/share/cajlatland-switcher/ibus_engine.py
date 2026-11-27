@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import re
 import signal
-from manual import convert
+from manual import convert, previous_layout
 import subprocess
 import sys
 import time
@@ -111,7 +111,7 @@ class Switcher(IBus.Engine):
 
     def manual_switch(self):
         purpose,hints=self.get_content_type()
-        if not self.trusted_client or purpose not in (IBus.InputPurpose.FREE_FORM,IBus.InputPurpose.ALPHA) or hints & PRIVATE:
+        if not self.trusted_client or purpose not in (IBus.InputPurpose.FREE_FORM,IBus.InputPurpose.ALPHA) or hints & int(IBus.InputHints.PRIVATE | IBus.InputHints.HIDDEN_TEXT):
             return
         cfg=configparser.ConfigParser()
         cfg.read(excluded.location().with_name("switcher.ini"))
@@ -121,22 +121,32 @@ class Switcher(IBus.Engine):
         ident=window.get("class","")
         if not ident or excluded.blocked(window) or excluded.protected(ident):
             return
-        selection=""
-        if ident.casefold() in {"code","code-oss","code-insiders","vscodium","codium"}:
-            selection=subprocess.run(
+        context,cursor,anchor = self.get_surrounding_text()
+        selection = ""
+        if context and cursor != anchor:
+            start,end = sorted((cursor,anchor))
+            selection = context.get_text()[start:end]
+            if len(selection) > 2000:
+                return
+        if not selection and uses_preedit(ident):
+            selection = subprocess.run(
                 [sys.executable, BASE/"selected_text.py", str(window["pid"])],
-                capture_output=True, text=True, timeout=2,
+                capture_output=True, text=True, timeout=.8,
             ).stdout
+        source = None
+        candidate = selection or self.word or (context.get_text()[:cursor] if context else "")
+        if not any(ch.isalpha() for ch in candidate):
+            source = previous_layout(query("devices")["keyboards"])
         if selection:
             if query("activewindow").get("address")!=window.get("address"):
                 return
-            converted=convert(selection)
+            converted=convert(selection, source)
             if selection==converted:
                 return
             self.word=""
             self.commit_text(IBus.Text.new_from_string(converted))
         elif self.word:
-            converted=convert(self.word)
+            converted=convert(self.word, source)
             self.word=converted
             self.flush()
         else:
@@ -153,7 +163,7 @@ class Switcher(IBus.Engine):
             original=text[start:end]
             if not original or len(original)>2000:
                 return
-            converted=convert(original)
+            converted=convert(original, source)
             if converted==original:
                 return
             if cursor==anchor:

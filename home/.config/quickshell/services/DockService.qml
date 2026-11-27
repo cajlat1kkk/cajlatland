@@ -471,9 +471,8 @@ Singleton {
             return
         }
         const shown = item.windows.filter(window => !window.minimized)
-        // One window out, in front: the click puts it away.
+        // Selecting the sole active window leaves it in place.
         if (item.active && shown.length === 1) {
-            HyprlandService.minimizeWindow(shown[0].address)
             return
         }
         // Only minimized windows left: the first comes back here.

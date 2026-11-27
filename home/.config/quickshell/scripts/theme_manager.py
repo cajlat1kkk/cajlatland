@@ -1525,23 +1525,52 @@ statusbar {{ border-top: 1px solid @borders; }}
 
 /* ── THUNAR ──────────────────────────────────────────────────────────── */
 
-.thunar, .thunar window {{
-  background-color: @theme_bg_color;
-  color: @theme_fg_color;
+.thunar {{
+  background-color: #191d22;
 }}
 
 .thunar headerbar, .thunar toolbar, .thunar .location-bar {{
-  background-color: {raised};
-  border-bottom: 1px solid @borders;
+  background-color: #242a31;
+  border-bottom: 1px solid #353e47;
+  padding: 4px 7px;
 }}
 
-.thunar .shortcuts-pane, .thunar .tree-pane {{
-  background-color: {raised};
-  border-right: 1px solid @borders;
+.thunar toolbar button {{
+  border-radius: 6px;
+  padding: 4px 7px;
+}}
+.thunar toolbar button:hover, .thunar .location-button:hover {{
+  background-color: #36424a;
 }}
 
-.thunar .shortcuts-pane row, .thunar .shortcuts-pane .view {{
-  padding: 3px 6px;
+.thunar .shortcuts-pane, .thunar .tree-pane,
+.thunar .shortcuts-pane .view, .thunar .tree-pane .view {{
+  background-color: #20262d;
+  border-color: #353e47;
+}}
+
+.thunar .shortcuts-pane .view:selected, .thunar .tree-pane .view:selected {{
+  background-color: #30454b;
+  color: #e4faf3;
+}}
+
+.thunar notebook > header {{
+  background-color: #191d22;
+  padding: 4px 8px 0;
+}}
+
+.thunar notebook > header tab {{
+  min-height: 24px;
+  padding: 2px 10px;
+  margin-right: 4px;
+  border-radius: 8px 8px 0 0;
+  background-color: #20262d;
+  border: 1px solid #303943;
+}}
+
+.thunar notebook > header tab:checked {{
+  background-color: #29363c;
+  box-shadow: inset 0 2px #72c9af;
 }}
 
 .thunar .location-button {{
@@ -1550,14 +1579,78 @@ statusbar {{ border-top: 1px solid @borders; }}
 }}
 
 .thunar .location-button:checked {{
-  background-color: {hover};
-  color: @theme_fg_color;
+  background-color: #303b43;
+  color: #e4faf3;
 }}
 
 .thunar rubberband {{
-  background-color: alpha(@theme_selected_bg_color, 0.22);
-  border: 1px solid @theme_selected_bg_color;
+  background-color: alpha(#72c9af, 0.22);
+  border: 1px solid #72c9af;
   border-radius: 4px;
+}}
+
+/* Thunar paints its main view and sidebar separately from the window. */
+window.thunar {{
+  background-color: rgba(15, 18, 23, 0.72);
+}}
+
+window.thunar > grid,
+window.thunar .standard-view,
+window.thunar .standard-view .view,
+window.thunar .preview-pane {{
+  background-color: transparent;
+  background-image: none;
+  color: #e7eef3;
+}}
+
+window.thunar .sidebar,
+window.thunar .sidebar .view,
+window.thunar .shortcuts-pane,
+window.thunar .tree-pane {{
+  background-color: rgba(44, 59, 70, 0.23);
+  background-image: none;
+  border-color: #343e48;
+  color: #e7eef3;
+}}
+
+window.thunar .sidebar .view:selected,
+window.thunar .standard-view .view:selected,
+window.thunar .standard-view .view:selected:focus {{
+  background-color: #304a4b;
+  background-image: none;
+  color: #e4faf3;
+}}
+
+window.thunar .titlebar,
+window.thunar .toolbar,
+window.thunar toolbar,
+window.thunar headerbar,
+window.thunar statusbar,
+window.thunar searchbar {{
+  background-color: rgba(58, 76, 88, 0.28);
+  background-image: none;
+  border-color: #35404a;
+  color: #e7eef3;
+}}
+
+window.thunar entry {{
+  background-color: rgba(15, 18, 23, 0.44);
+  background-image: none;
+  border-color: #3b4752;
+  color: #e7eef3;
+}}
+
+window.thunar notebook > header {{
+  background-color: transparent;
+  background-image: none;
+  border-color: #35404a;
+}}
+
+window.thunar notebook > header tabs tab:checked {{
+  background-color: #2e3b42;
+  background-image: none;
+  box-shadow: inset 0 -2px #79cfb6;
+  color: #e7eef3;
 }}
 """)
     lines.append("")
