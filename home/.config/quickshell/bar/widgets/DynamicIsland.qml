@@ -52,14 +52,11 @@ Rectangle {
     // own controls; and not while `landing` from one.
     readonly property bool lit: hover.hovered && !root.landing
         && islandState.layer === islandState.layerModules && !root.hosted
-    // Solid, a floating island at rest is a shade off the black; on glass it
-    // is the capsules' ground, since a lighter veil reads as another material.
+    // Match the side capsules at rest in each surface style.
     readonly property color surfaceColor: {
-        if (!Theme.solid)
-            return root.lit ? Theme.islandGroundLit : Theme.islandGround
-        if (root.lit)
-            return Theme.islandSurfaceHover
-        return SettingsService.notched ? Theme.islandGround : Theme.islandSurface
+        if (!root.lit)
+            return Theme.islandGround
+        return Theme.solid ? Theme.islandSurfaceHover : Theme.islandGroundLit
     }
 
     // ── HOSTED ──────────────────────────────────────────────────────────────

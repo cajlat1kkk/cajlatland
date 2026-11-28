@@ -322,10 +322,12 @@ files_in() {
 shell_part() {
     case $1 in
         .config/hypr/custom|.config/hypr/custom/*) return 1 ;;
-        .config/quickshell/*|.config/hypr/*|.config/environment.d/*|.config/Thunar/*|.config/xfce4/*|.local/share/cajlatland/*|.local/bin/cajlatland) return 0 ;;
+        # Keep the retired files in scope so sync can retire unmodified copies.
+        .config/Thunar/uca.xml|.config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml|.local/share/applications/thunar.desktop) return 0 ;;
+        .config/quickshell/*|.config/hypr/*|.config/environment.d/*|.local/share/cajlatland/*|.local/share/nautilus-python/extensions/cajlatland*|.local/bin/cajlatland) return 0 ;;
         .local/share/wallpapers/*) return 0 ;;
         .local/share/fonts/GrapeNuts-*|.local/share/icons/hicolor/scalable/apps/cajlatland-files.svg) return 0 ;;
-        .local/share/applications/cajlatland-*.desktop|.local/share/applications/thunar.desktop) return 0 ;;
+        .local/share/applications/cajlatland-*.desktop) return 0 ;;
         .local/share/zsh/site-functions/_cajlatland) return 0 ;;
     esac
     return 1
@@ -781,6 +783,7 @@ verb_sync() {
         act cp -n "$REPO/home/.local/share/cajlatland/default-settings.json" "$shell_state/settings.json"
     fi
     deploy home "$HOME" "$STATE/home.manifest" '~/'
+    set_file_manager_default
     save_install_mode
     reload_shell
     seed
@@ -821,9 +824,47 @@ verb_system() {
     # User pictures for the greeter and the lock screen. Never removed.
     act $SUDO install -d -m 755 "$ROOT/var/lib/cajlatland/faces"
     display_manager
+    network_services
     printing
     i2c_dev
     SUDO=
+}
+
+# Enable installed services on the target system, or start them now on the
+# live host. Leave any existing network manager in charge of its connections.
+enable_installed_service() {
+    local unit=$1
+    [[ -f $ROOT/usr/lib/systemd/system/$unit ]] || return 0
+    local -a options=(--now)
+    if [[ -n $ROOT ]]; then options=(--root="$ROOT"); fi
+    if act $SUDO systemctl "${options[@]}" enable "$unit"; then
+        say "enabled  $unit"
+    else
+        say "skipped  $unit could not be enabled"
+    fi
+}
+
+service_in_use() {
+    systemctl ${ROOT:+--root="$ROOT"} is-enabled --quiet "$1" 2>/dev/null \
+        || { [[ -z $ROOT ]] && systemctl is-active --quiet "$1" 2>/dev/null; }
+}
+
+network_services() {
+    local other managing=
+    if ! service_in_use NetworkManager.service; then
+        for other in systemd-networkd.service iwd.service connman.service dhcpcd.service; do
+            if service_in_use "$other"; then
+                managing=$other
+                break
+            fi
+        done
+    fi
+    if [[ -n $managing ]]; then
+        say "kept     $managing as the network manager"
+    else
+        enable_installed_service NetworkManager.service
+    fi
+    enable_installed_service bluetooth.service
 }
 
 # Printing: CUPS on its socket, Avahi for the printers on the network, and
@@ -932,6 +973,24 @@ verb_packages() {
     say "missing: ${missing[*]}"
     aur_helper || return 0
     act "$HELPER" -S --needed "${yes[@]}" "${missing[@]}"
+}
+
+# The office suite is part of a full install even when optional AUR apps are
+# skipped. Recognise both native and Flatpak copies on repeat installations.
+install_onlyoffice() {
+    section ONLYOFFICE
+    local app=org.onlyoffice.desktopeditors
+    if command -v onlyoffice-desktopeditors >/dev/null || command -v desktopeditors >/dev/null \
+        || flatpak --user info "$app" >/dev/null 2>&1 \
+        || flatpak --system info "$app" >/dev/null 2>&1; then
+        say 'kept     existing ONLYOFFICE Desktop Editors'
+        return 0
+    fi
+    local -a yes=()
+    if (( NOCONFIRM )); then yes=(--assumeyes --noninteractive); fi
+    say 'install  ONLYOFFICE Desktop Editors from Flathub'
+    act flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo \
+        && act flatpak --user install "${yes[@]}" --app flathub "$app"
 }
 
 # Creates the localised XDG folders (existing ones are never renamed). The
@@ -1144,6 +1203,9 @@ verb_install() {
     if (( ! SKIP_SYSTEM )); then verb_system; fi
     if (( ! SKIP_PLUGINS )); then verb_plugins; fi
     if (( ! SKIP_EXTRAS )); then extras; fi
+    if (( ! SHELL_ONLY && ! SKIP_PACKAGES )); then
+        install_onlyoffice || say 'skipped  ONLYOFFICE could not be installed from Flathub'
+    fi
     section done "$(elapsed)"
     restore_shell
     if ! shell_up; then
@@ -1309,19 +1371,22 @@ extras() {
 DEFAULT_APPS=(
     'imv.desktop image/jpeg image/png image/gif image/webp image/svg+xml'
     'nvim.desktop text/plain application/json'
-    'thunar.desktop inode/directory'
     'zen.desktop text/html application/pdf x-scheme-handler/http x-scheme-handler/https'
 )
 
-# Whether mimeapps.list names a default for a type. `xdg-mime query` cannot
-# tell: outside a desktop environment it answers from the cache of every
-# installed application, chosen or not.
+# Read an explicit user default, without the fallback guesses of xdg-mime query.
+configured_default() {
+    local list=$1 mime=$2
+    [[ -f $list ]] || return 0
+    awk -v key="$mime=" '/^\[/ { section = ($0 == "[Default Applications]") }
+        section && index($0, key) == 1 && length($0) > length(key) {
+            print substr($0, length(key) + 1)
+            exit
+        }' "$list"
+}
+
 chosen() {
-    local list=${XDG_CONFIG_HOME:-$HOME/.config}/mimeapps.list
-    [[ -f $list ]] || return 1
-    awk -v key="$1=" '/^\[/ { section = ($0 == "[Default Applications]") }
-        section && index($0, key) == 1 && length($0) > length(key) { found = 1 }
-        END { exit !found }' "$list"
+    [[ -n $(configured_default "${XDG_CONFIG_HOME:-$HOME/.config}/mimeapps.list" "$1") ]]
 }
 
 # Whether a desktop entry is installed where xdg-open looks.
@@ -1333,9 +1398,26 @@ has_entry() {
     return 1
 }
 
+# The file manager is part of the base setup, including installs without extras.
+# Replace the old Cajlatland default and preserve other explicit user choices.
+set_file_manager_default() {
+    local config=${XDG_CONFIG_HOME:-$HOME/.config}
+    local mime=inode/directory desktop=org.gnome.Nautilus.desktop current
+    command -v xdg-mime >/dev/null && has_entry "$desktop" || return 0
+    [[ -z $(configured_default "$config/hyprland-mimeapps.list" "$mime") ]] || return 0
+    current=$(configured_default "$config/mimeapps.list" "$mime")
+    [[ -z $current || ${current%;} == thunar.desktop ]] || return 0
+    if act xdg-mime default "$desktop" "$mime"; then
+        say "$desktop  $mime"
+    else
+        say "skipped  $mime — xdg-mime could not set the default"
+    fi
+}
+
 verb_defaults() {
     section defaults
     command -v xdg-mime >/dev/null || refuse 'xdg-mime is not installed (package: xdg-utils)' || return
+    set_file_manager_default
     local line type taken
     local -a words
     for line in "${DEFAULT_APPS[@]}"; do

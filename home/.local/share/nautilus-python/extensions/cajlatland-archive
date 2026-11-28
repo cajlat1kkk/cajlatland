@@ -1,0 +1,67 @@
+"""Run 7-Zip away from the Nautilus UI and publish only completed archives."""
+
+from pathlib import Path
+import os
+import subprocess
+import sys
+import tempfile
+
+
+def pack(kind, paths):
+    if kind not in ("7z", "zip") or not paths:
+        raise ValueError("Не выбран формат или файлы для сжатия")
+    sources = [Path(path) for path in paths]
+    parent = sources[0].parent
+    if any(not src.is_absolute() or not src.name or src.parent != parent for src in sources):
+        raise ValueError("Выберите файлы или папки из одного каталога")
+
+    stem = sources[0].name if len(sources) == 1 else "Архив"
+    while len(os.fsencode(stem)) > 220:
+        stem = stem[:-1]
+    with tempfile.TemporaryDirectory(prefix=".cajlatland-7zip-", dir=parent) as staging:
+        draft = Path(staging) / f"archive.{kind}"
+        subprocess.run(
+            ["/usr/bin/7z", "a", f"-t{kind}", "-mx=5", "-mmt=2", "-snl",
+             "-spd", "-sse", "-bso0", "-bsp0", "--", str(draft),
+             *[f"./{source.name}" for source in sources]],
+            cwd=parent, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            text=True, errors="replace", check=True,
+        )
+        number = 1
+        while True:
+            suffix = "" if number == 1 else f" ({number})"
+            target = parent / f"{stem}{suffix}.{kind}"
+            try:
+                target.touch(exist_ok=False)
+            except FileExistsError:
+                number += 1
+                continue
+            try:
+                draft.replace(target)
+            except OSError:
+                target.unlink(missing_ok=True)
+                raise
+            return target
+
+
+def notify(title, message, icon):
+    try:
+        subprocess.run(
+            ["/usr/bin/notify-send", "-a", "7-Zip", "-i", icon, "--", title, message],
+            check=False,
+        )
+    except OSError:
+        pass
+
+
+if __name__ == "__main__":
+    try:
+        archive = pack(sys.argv[1] if len(sys.argv) > 1 else "", sys.argv[2:])
+    except (ValueError, OSError, subprocess.CalledProcessError) as error:
+        detail = error.stderr.strip() if isinstance(error, subprocess.CalledProcessError) else str(error)
+        detail = detail or "Проверьте доступ к файлам и свободное место"
+        print(detail, file=sys.stderr)
+        notify("Не удалось создать архив", detail[:420], "dialog-error")
+        sys.exit(1)
+    print(archive)
+    notify("Архив создан", archive.name, "package-x-generic")

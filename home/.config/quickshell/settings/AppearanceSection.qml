@@ -9,6 +9,7 @@
 
 import QtQuick
 import QtQuick.Dialogs
+import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
 import QtQuick.Layouts
@@ -17,7 +18,7 @@ import "../theme"
 import "../services"
 import "../components"
 
-// The wallpaper and its palette, the terminal, type and the shell's motion.
+// Wallpaper, terminal and file manager appearance, type and the shell's motion.
 // What Hyprland does to windows is `WindowsSection`.
 SettingsSection {
     id: root
@@ -26,6 +27,9 @@ SettingsSection {
     property string tab: ""
 
     signal panelRequested(string panel)
+
+    readonly property string customSceneFolder:
+        DesktopService.urlOf(SettingsService.stateDirectory + "/greeting-custom")
 
     Component.onCompleted: FontService.load()
 
@@ -37,7 +41,7 @@ SettingsSection {
         { id: "imv", label: "imv" }, { id: "gtk", label: "GTK" },
         { id: "qt", label: Tr.t("Qt and KDE") }, { id: "vesktop", label: "Vesktop" },
         { id: "spotify", label: "Spotify" }, { id: "vscodium", label: "VSCodium" },
-        { id: "zen", label: "Zen" }, { id: "thunar", label: "Thunar" }
+        { id: "zen", label: "Zen" }
     ]
 
     function themeTargetOn(id: string): bool {
@@ -189,7 +193,7 @@ SettingsSection {
         // The tiles play the generated greeting scenes in the current palette.
         SettingGroup {
             title: Tr.t("Greeting")
-            note: Tr.t("The animation shown beside fastfetch when you run fa.")
+            note: Tr.t("The scene shown beside Fastfetch when Kitty opens.")
             hint: Tr.t("Four pixel-art scenes, redrawn in the current palette whenever it changes. Random picks a new one on every run, and fa with a scene name (fa koi) plays that one.")
 
             SettingTiles {
@@ -214,6 +218,132 @@ SettingsSection {
                             version: ThemeService.greetingStamp
                         }
                     }
+                }
+            }
+
+            SettingRow {
+                id: greetingImportRow
+
+                property string errorMessage: ""
+                label: Tr.t("My scenes")
+                reading: greetingImporter.running ? Tr.t("Importing scene…")
+                    : errorMessage ? Tr.t(errorMessage) : Tr.t("GIF, PNG, JPEG and WebP, up to 25 MB")
+                alarm: !greetingImporter.running && errorMessage !== ""
+
+                PillButton {
+                    text: Tr.t("Add from file…")
+                    icon: "󰉋"
+                    enabled: SettingsService.arrived && !greetingImporter.running
+                    onClicked: greetingDialog.open()
+                }
+            }
+
+            Repeater {
+                model: FolderListModel {
+                    id: customScenes
+
+                    folder: root.customSceneFolder
+                    nameFilters: ["*.gif"]
+                    showDirs: false
+                    showHidden: false
+                    sortCaseSensitive: false
+                }
+
+                delegate: SettingRow {
+                    id: customRow
+
+                    required property string fileBaseName
+                    required property url fileUrl
+                    readonly property string scene: "custom:" + fileBaseName
+                    readonly property bool selected: SettingsService.greeting === scene
+
+                    label: fileBaseName
+
+                    RowLayout {
+                        spacing: 12
+
+                        AnimatedImage {
+                            Layout.preferredWidth: 48
+                            Layout.preferredHeight: 46
+                            fillMode: Image.PreserveAspectFit
+                            source: customRow.fileUrl
+                            playing: visible && customRow.selected
+                        }
+
+                        PillButton {
+                            text: customRow.selected ? Tr.t("Current scene") : Tr.t("Use scene")
+                            active: customRow.selected
+                            onClicked: SettingsService.set("greeting", customRow.scene)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    FileDialog {
+        id: greetingDialog
+
+        title: Tr.t("Choose a terminal scene")
+        nameFilters: [Tr.t("Images") + " (*.gif *.png *.jpg *.jpeg *.webp *.GIF *.PNG *.JPG *.JPEG *.WEBP)"]
+        onAccepted: {
+            greetingImportRow.errorMessage = ""
+            greetingImporter.command = [ThemeService.greetingScript, "import", selectedFile.toString()]
+            greetingImporter.running = true
+        }
+    }
+
+    Process {
+        id: greetingImporter
+
+        stdout: StdioCollector { id: greetingResult }
+        stderr: StdioCollector { id: greetingError }
+        onExited: code => {
+            const scene = greetingResult.text.trim()
+            if (code !== 0 || !scene.startsWith("custom:")) {
+                greetingImportRow.errorMessage = greetingError.text.trim() || "Could not save the scene"
+                return
+            }
+            SettingsService.set("greeting", scene)
+            // On the first import the model may have had no directory to watch.
+            if (customScenes.count === 0) {
+                customScenes.folder = ""
+                customScenes.folder = root.customSceneFolder
+            }
+        }
+    }
+
+    ColumnLayout {
+        Layout.fillWidth: true
+        spacing: root.spacing
+        visible: root.tab === "file-manager"
+
+        SettingGroup {
+            title: Tr.t("File manager")
+            note: Tr.t("Background and sidebar in Nautilus. Changes apply to open windows.")
+
+            GroundRow {
+                key: "fileManagerGround"
+            }
+
+            SettingSlider {
+                label: Tr.t("Background opacity")
+                value: SettingsService.fileManagerOpacity
+                from: 50
+                to: 95
+                unit: "%"
+                locked: !Theme.seeThrough(SettingsService.fileManagerGround)
+                reason: Tr.t("Classic uses an opaque background")
+                onMoved: value => SettingsService.set("fileManagerOpacity", Math.round(value))
+            }
+
+            SettingRow {
+                label: Tr.t("Shade the sidebar")
+                reading: Tr.t("Make folders and drives easier to distinguish")
+
+                ToggleSwitch {
+                    checked: SettingsService.fileManagerSidebarShade
+                    onToggled: value => SettingsService.set("fileManagerSidebarShade", value)
                 }
             }
         }

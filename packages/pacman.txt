@@ -116,9 +116,18 @@ qt6-declarative              # qmlls6 · quickshell brings it anyway
 
 # ── FILE MANAGER ────────────────────────────────────────────────────────────
 
-thunar                     # SUPER + E
+nautilus                   # SUPER + E
+nautilus-python            # Cajlatland's file manager extension
+7zip                       # .7z and .zip actions in Nautilus
 ffmpegthumbnailer            # a video's thumbnail
 gvfs                         # the trash, and mounting
+
+
+# ── DESKTOP APPLICATIONS ────────────────────────────────────────────────────
+
+firefox
+telegram-desktop
+flatpak                      # ONLYOFFICE Desktop Editors from Flathub
 
 
 # ── PRINTING ────────────────────────────────────────────────────────────────

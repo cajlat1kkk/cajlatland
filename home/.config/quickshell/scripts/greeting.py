@@ -30,7 +30,10 @@ import random
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
+from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 WIDTH = 54
 HEIGHT = 60
@@ -715,9 +718,13 @@ SCENES = {"lava": lava, "critters": critters, "koi": koi, "invaders": invaders}
 
 # · what the settings window can choose: a scene, or a new one every greeting
 CHOICES = (*SCENES, "random")
+CUSTOM_PREFIX = "custom:"
+IMPORT_FORMATS = {".gif": "gif", ".png": "png", ".jpg": "jpeg", ".jpeg": "jpeg", ".webp": "webp"}
+MAX_IMPORT_SIZE = 25 * 1024 * 1024
 
 STATE_DIR = os.path.join(os.environ.get("XDG_STATE_HOME")
                          or os.path.expanduser("~/.local/state"), "quickshell")
+CUSTOM_DIR = Path(STATE_DIR) / "greeting-custom"
 # · the paint the scenes are drawn in, the choice, the one fastfetch's config
 #   names, the moment the last full set landed, and what the drawing said
 PAINT_FILE = os.path.join(STATE_DIR, "greeting-paint.json")
@@ -729,6 +736,59 @@ LOG_FILE = os.path.join(STATE_DIR, "greeting.log")
 
 def scene_file(scene):
     return os.path.join(STATE_DIR, f"greeting-{scene}.gif")
+
+
+def custom_scene_file(choice):
+    if not choice.startswith(CUSTOM_PREFIX):
+        return None
+    name = choice[len(CUSTOM_PREFIX):]
+    if not name or name.startswith(".") or "/" in name or not name.isprintable():
+        return None
+    return CUSTOM_DIR / f"{name}.gif"
+
+
+def import_scene(url):
+    """Convert a local picture to a self-contained, fixed-size Kitty scene."""
+    selected = urlsplit(url)
+    if selected.scheme != "file" or selected.netloc not in ("", "localhost"):
+        raise ValueError("Choose a local file")
+    source = Path(unquote(selected.path))
+    image_format = IMPORT_FORMATS.get(source.suffix.lower())
+    if not image_format or not source.is_file():
+        raise ValueError("Choose a GIF, PNG, JPEG or WebP image")
+    if source.stat().st_size > MAX_IMPORT_SIZE:
+        raise ValueError("The file is larger than 25 MB")
+
+    magick = shutil.which("magick") or shutil.which("convert")
+    if not magick:
+        raise ValueError("ImageMagick is required to import scenes")
+    name = "".join(char for char in source.stem if char.isprintable()).strip().lstrip(".").strip()
+    name = name[:55].rstrip() or "Scene"
+    CUSTOM_DIR.mkdir(parents=True, exist_ok=True)
+    box = f"{WIDTH * SCALE}x{HEIGHT * SCALE}"
+    with tempfile.TemporaryDirectory(dir=CUSTOM_DIR, prefix=".import-") as stage:
+        output = Path(stage) / "scene.gif"
+        command = [magick, "-limit", "width", "4096", "-limit", "height", "4096",
+                   "-limit", "list-length", "240", "-limit", "memory", "128MiB",
+                   "-limit", "map", "256MiB", "-limit", "disk", "512MiB",
+                   "-limit", "thread", "2", f"{image_format}:-", "-coalesce",
+                   "-auto-orient", "-resize", box, "-background", "none",
+                   "-gravity", "center", "-extent", box, "-dispose", "Background",
+                   "-loop", "0", f"gif:{output}"]
+        try:
+            with source.open("rb") as image:
+                subprocess.run(command, stdin=image, stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL, check=True, timeout=30)
+        except subprocess.SubprocessError as error:
+            raise ValueError("Could not read the image. Use up to 4096 × 4096 pixels and 240 frames") from error
+        number = 1
+        while True:
+            label = name if number == 1 else f"{name} ({number})"
+            try:
+                os.link(output, CUSTOM_DIR / f"{label}.gif")
+                return CUSTOM_PREFIX + label
+            except FileExistsError:
+                number += 1
 
 
 def read_paint():
@@ -818,7 +878,8 @@ def read_choice():
     try:
         with open(CHOICE_FILE, encoding="utf-8") as handle:
             choice = handle.read().strip()
-        return choice if choice in CHOICES else "random"
+        custom = custom_scene_file(choice)
+        return choice if choice in CHOICES or (custom and custom.is_file()) else "random"
     except OSError:
         return "random"
 
@@ -830,14 +891,19 @@ def choose(choice):
     for fastfetch run by its own name, which cannot deal anything, and gets
     one scene drawn now.
     """
-    if choice not in CHOICES:
+    custom = custom_scene_file(choice)
+    if custom is not None and not custom.is_file():
+        choice = "random"
+        custom = None
+    if choice not in CHOICES and custom is None:
         sys.stderr.write(f"Unknown greeting: {choice}\n")
         return False
     os.makedirs(STATE_DIR, exist_ok=True)
     replace_text(CHOICE_FILE, choice + "\n")
     scene = random.choice(tuple(SCENES)) if choice == "random" else choice
     staging = f"{LINK}.{os.getpid()}.part"
-    os.symlink(os.path.basename(scene_file(scene)), staging)
+    target = custom if custom is not None else scene_file(scene)
+    os.symlink(os.path.relpath(target, STATE_DIR), staging)
     os.replace(staging, LINK)
     return True
 
@@ -866,7 +932,8 @@ SAMPLE_PAINT = {"accent": "#597cce", "green": "#a6e3a1", "yellow": "#f9e2af",
                 "text": "#eef2f7", "muted": "#94a1b2"}
 
 
-USAGE = ("greeting.py draw | choose <" + "|".join(CHOICES) + "> | seed"
+USAGE = ("greeting.py draw | choose <" + "|".join(CHOICES) + "|custom:name> | seed"
+         " | import <file-url>"
          " | <" + "|".join(SCENES) + "> <out.gif>")
 
 
@@ -878,6 +945,13 @@ if __name__ == "__main__":
         sys.exit(0 if choose(sys.argv[2]) else 1)
     elif verb == "seed" and len(sys.argv) == 2:
         sys.exit(0 if seed() else 1)
+    elif verb == "import" and len(sys.argv) == 3:
+        try:
+            print(import_scene(sys.argv[2]))
+        except (ValueError, OSError) as error:
+            print(error if isinstance(error, ValueError) else "Could not save the scene", file=sys.stderr)
+            sys.exit(1)
+        sys.exit(0)
     elif verb in SCENES and len(sys.argv) == 3:
         magick = shutil.which("magick") or shutil.which("convert")
         if not magick:

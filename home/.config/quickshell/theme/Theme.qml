@@ -170,9 +170,8 @@ QtObject {
     // else's, so those ask for the picture meant for them.
     readonly property var appIconAliases: ({
         "vesktop": "Vesktop",
-        "thunar": "cajlatland-files",
-        "thunar": "cajlatland-files",
-        "org.xfce.thunar": "cajlatland-files"
+        "org.gnome.Nautilus": "cajlatland-files",
+        "org.gnome.nautilus": "cajlatland-files"
     })
 
     function appIcon(name: string): string {

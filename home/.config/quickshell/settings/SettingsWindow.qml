@@ -27,15 +27,19 @@ FloatingWindow {
     // compositor resets it and it can be opened again.
     property bool shown: false
 
-    property bool keysRequested: false
-    function openKeys(): void {
-        keysRequested = true
-        open()
-        if (content.item && keysRequested) {
-            content.item.go("keys", "shell")
-            keysRequested = false
-        }
+    property var requestedPage: null
+    function showRequestedPage(): void {
+        if (!content.item || !root.requestedPage)
+            return
+        content.item.go(root.requestedPage.section, root.requestedPage.tab)
+        root.requestedPage = null
     }
+    function openPage(section: string, tab: string): void {
+        root.requestedPage = { section: section, tab: tab }
+        open()
+        root.showRequestedPage()
+    }
+    function openKeys(): void { root.openPage("keys", "shell") }
     function open(): void { root.shown = true }
     function close(): void { root.shown = false }
     function toggle(): void { root.shown = !root.shown }
@@ -61,12 +65,7 @@ FloatingWindow {
     // and release their subscriptions when gone.
     Loader {
         id: content
-        onLoaded: {
-            if (root.keysRequested) {
-                item.go("keys", "shell")
-                root.keysRequested = false
-            }
-        }
+        onLoaded: root.showRequestedPage()
         anchors.fill: parent
         active: root.visible
         sourceComponent: panel

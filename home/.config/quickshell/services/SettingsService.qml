@@ -66,6 +66,9 @@ Singleton {
     readonly property alias dockOpacity: config.dockOpacity
     readonly property alias dockGround: config.dockGround
     readonly property alias terminalGround: config.terminalGround
+    readonly property alias fileManagerGround: config.fileManagerGround
+    readonly property alias fileManagerOpacity: config.fileManagerOpacity
+    readonly property alias fileManagerSidebarShade: config.fileManagerSidebarShade
     readonly property alias superTapLauncher: config.superTapLauncher
     readonly property alias workspaceNumbersOnSuper: config.workspaceNumbersOnSuper
     readonly property alias volumeMax: config.volumeMax
@@ -907,6 +910,11 @@ Singleton {
 
         // kitty's ground, as `surfaceStyle`.
         property string terminalGround: "glass"
+
+        // Also read by the Nautilus extension from settings.json.
+        property string fileManagerGround: "liquid"
+        property int fileManagerOpacity: 72
+        property bool fileManagerSidebarShade: true
 
         // A tap of Super alone opens the launcher.
         property bool superTapLauncher: false

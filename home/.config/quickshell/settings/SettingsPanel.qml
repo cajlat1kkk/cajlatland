@@ -95,9 +95,10 @@ Item {
           blurb: Tr.t("Wallpaper, terminal, fonts and the shell's motion."),
           tabs: [{ id: "wallpaper", label: Tr.t("Wallpaper") },
                  { id: "terminal", label: Tr.t("Terminal") },
+                 { id: "file-manager", label: Tr.t("File manager") },
                  { id: "type", label: Tr.t("Type") },
                  { id: "motion", label: Tr.t("Motion") }],
-          keywords: "appearance theme colour color palette wallpaper transition fade wipe wave circle random terminal kitty ground glass greeting fastfetch fa scene lava lamp critters koi invaders font family sans mono nerd icons typeface animation speed pace curve easing motion game mode performance",
+          keywords: "appearance theme colour color palette wallpaper transition fade wipe wave circle random terminal kitty ground glass greeting fastfetch fa scene lava lamp critters koi invaders font family sans mono nerd icons typeface animation speed pace curve easing motion game mode performance file manager nautilus sidebar opacity проводник файлы прозрачность боковая панель",
           page: appearancePage },
 
         { id: "windows", category: "desk", icon: "󰖯", label: Tr.t("Windows"),

@@ -14,7 +14,6 @@
 hl.on("hyprland.start", function()
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP DISPLAY QT_QPA_PLATFORMTHEME GSK_RENDERER && systemctl --user import-environment WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP DISPLAY QT_QPA_PLATFORMTHEME GSK_RENDERER && systemctl --user start cajlatland-switcher.service")
     hl.exec_cmd("qs -d")        -- · bar and notifications (quickshell)
-    hl.exec_cmd("command -v thunar >/dev/null && thunar --daemon")
     hl.exec_cmd("systemctl --user start cajlatland-media-tap.service")
     hl.exec_cmd("awww-daemon")  -- · wallpaper
 end)

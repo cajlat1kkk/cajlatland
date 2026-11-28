@@ -61,8 +61,15 @@
     },
     {
       "type": "wm",
-      "format": "{1} by cajlat1kk",
-      "key": "  󰖳 wm    "
+      "format": "cajlatland ({protocol-name})",
+      "key": "  󰖳 WM    "
+    },
+    // The first line is the installed build recorded by setup sync/update.
+    {
+      "type": "command",
+      "key": "  󰏓 версия",
+      "format": "cajlatland {result}",
+      "text": "if IFS= read -r version 2>/dev/null < \"${XDG_STATE_HOME:-$HOME/.local/state}/cajlatland/version\" && [ -n \"$version\" ]; then printf '%s\\n' \"$version\"; else printf '%s\\n' '—'; fi"
     },
     {
       "type": "terminal",

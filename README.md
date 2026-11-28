@@ -18,6 +18,8 @@ Download the [ready-to-run installer](https://github.com/cajlat1kkk/cajlatland/r
 
 The installer updates packages via `pacman`, fetches dependencies, and deploys the configuration. Enter your password when `sudo` prompts for it, then log out and select **Hyprland** at the login screen. On first login, you may be prompted to build the compositor plugins.
 
+The standard install includes **Firefox**, **Telegram Desktop**, **btop**, and **ONLYOFFICE Desktop Editors**. ONLYOFFICE is installed for your user from Flathub when it is missing. The installer also sets up NetworkManager for Wi-Fi, BlueZ for Bluetooth, and CUPS with Avahi for printing. An existing network manager is preserved.
+
 <details>
 <summary>Archive verification and backups</summary>
 
@@ -34,6 +36,7 @@ After cloning, you can customize the configuration before installing:
 | Windows, keybindings, and autostart | [home/.config/hypr](home/.config/hypr) |
 | Top bar, dock, and settings window | [home/.config/quickshell](home/.config/quickshell) |
 | Default appearance and shell preferences | [default-settings.json](home/.local/share/cajlatland/default-settings.json) |
+| Nautilus liquid theme and 7-Zip actions | [Nautilus extension](home/.local/share/nautilus-python/extensions) |
 | System configs, login screen, and boot splash | [system](system) |
 | Package dependencies | [packages](packages) |
 
@@ -60,6 +63,8 @@ Press **Super → Cajlatland Switcher → Test Input** to try it out. Under **Se
 - **Bottom Dock** appears on empty workspaces and auto-hides when windows are open. Move the pointer to the bottom-center edge bar to reveal it.
 - **Language & Date Settings** let you switch the shell interface language (English, Russian, Spanish), configure system locale, timezone, NTP synchronization, manual date/time, and clock format directly from **cajlatland Settings → Language & Date**.
 - **Kitty Terminal** comes preconfigured with Zsh, and both the terminal and file manager use a dark translucent theme.
+- **Nautilus** opens with **Win + E** and uses a dark, translucent background with blur. Right-click a file or folder and choose **7-Zip → Сжать в .7z** or **Сжать в .zip** to create the archive in the same directory.
+  Under **Appearance → File manager**, you can change the background style, opacity and sidebar shading. Right-click empty space in Nautilus and choose **Appearance settings…** to open the same page.
 
 <h2 id="keys">Keyboard Shortcuts</h2>
 
@@ -83,4 +88,4 @@ cajlatland is an open-source Hyprland desktop configuration maintained by **cajl
 
 [GitHub](https://github.com/cajlat1kkk) · [VK](https://vk.ru/ilyshalaev) · [Telegram](https://t.me/IlyShalaev)
 
-The file manager is Thunar (**Win + E**). [Install Cajlatland Switcher separately](https://github.com/cajlat1kkk/cajlatland-switcher).
+[Install Cajlatland Switcher separately](https://github.com/cajlat1kkk/cajlatland-switcher).

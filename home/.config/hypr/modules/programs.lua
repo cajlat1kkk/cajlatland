@@ -36,12 +36,11 @@ end
 
 local function default_file_manager()
     local candidates = {
-        { bin = "thunar",    cmd = "thunar" },
+        { bin = "nautilus",  cmd = "nautilus --new-window" },
         { bin = "pcmanfm-qt", cmd = "pcmanfm-qt" },
         { bin = "pcmanfm",   cmd = "pcmanfm" },
         { bin = "dolphin",   cmd = "dolphin" },
         { bin = "nemo",      cmd = "nemo" },
-        { bin = "nautilus",  cmd = "nautilus --new-window" },
     }
     for _, entry in ipairs(candidates) do
         local file = io.open("/usr/bin/" .. entry.bin)

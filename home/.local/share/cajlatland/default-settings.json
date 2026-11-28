@@ -71,8 +71,7 @@
   "terminalGround": "glass",
   "themeTargets": [
     "terminal",
-    "greeting",
-    "thunar"
+    "greeting"
   ],
   "weatherPlace": "52.967,36.069",
   "weatherUnits": "m",

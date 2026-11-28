@@ -120,14 +120,10 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name  = "thunar-dialogs",
-    match = {
-        class = "^([Tt]hunar)$",
-        title = "^(Действие над файлами|File Operation Progress|Свойства.*|.*Properties|Настройки Thunar|Thunar Preferences|Подтверждение.*|Confirm.*|Переименовать.*|Rename.*)$",
-    },
+    name  = "nautilus-liquid",
+    match = { class = "^org[.]gnome[.]Nautilus$" },
 
-    float  = true,
-    center = true,
+    no_blur = false,
 })
 
 hl.window_rule({

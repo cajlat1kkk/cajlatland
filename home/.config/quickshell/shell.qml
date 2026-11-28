@@ -240,6 +240,17 @@ ShellRoot {
         onPanelRequested: panel => root.island?.open(panel)
     }
 
+    IpcHandler {
+        target: "settings"
+
+        function fileManager(): void {
+            const alreadyOpen = settingsWindow.shown
+            settingsWindow.openPage("appearance", "file-manager")
+            if (alreadyOpen)
+                Hyprland.dispatch('hl.dsp.focus({ window = "title:^Settings$" })')
+        }
+    }
+
     // The control centre's gear. The island has already closed itself.
     Connections {
         target: root.island
